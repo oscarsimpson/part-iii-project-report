@@ -1,0 +1,132 @@
+\documentclass[a4paper,12pt]{article}
+\input{preamble.tex}
+\graphicspath{\
+{../PartIIIProject/preliminary/images/}
+{../PartIIIProject/fitter/images_separate/2pt_hisq_coarse_D_Gold_K_p0_1053conf/}
+{../PartIIIProject/fitter/images_separate/2pt_hisq_msml5_fine_K_zeromom_D_Gold_nongold_495conf/}
+{./images/}}
+
+\title{Tuning NRQCD b-quarks for Bottomonium \\ Spectroscopy Using Lattice QCD}
+\author{Oscar Simpson \\ Supervisor: Dr.\ B.\ Chakraborty}
+\date{April 2021}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+    Quantum Chromodynamics (QCD) is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Bottomonium mesons can be studied using Non-Relativistic QCD (NRQCD) as the b-quarks are much heavier in mass compared to the lighter quarks and need super fine lattices to simulate them relativistically which are not easily available. This project will involve modifying an existing NRQCD codebase to support an anisotropic lattice, with finer graining in the time component. The b-quark mass $m_b$ will be tuned, along with the degree of lattice anisotropy, in order to produce spectra for both vector and scalar $B$-mesons. These will be compared using established lattice QCD statistical techniques (\code{lsqfit} and \code{corrfitter}) with existing spectra.
+\end{abstract}
+
+\tableofcontents
+\pagebreak
+
+\section{Introduction}
+\subsection{Standard Model}
+The Standard Model is currently the most accurate model of particle physics. It describes fermions: quarks ($q$), leptons ($l$), and their antiparticles, denoted with an overline ($\overline{q}$). It also describes the gauge bosons which mediate the strong, weak, and electromagnetic (EM) fields. 
+
+There are 6 flavours of quarks, in 3 different generations. Quarks are coupled to the strong, weak, and EM interactions. The leptons, also in 3 generations, are coupled to the EM field if they are charged, and to the weak force. This project is to study the spectra of bottomonium mesons. These are hadrons composed of a bottom quark and any antiquark (or an antiparticle of this). The weak and EM interactions are completely neglected, leaving only the strong interaction which is governed by the theory of Quantum Chromodynamics (QCD).
+
+\subsection{Quantum Chromodynamics}
+QCD is a $SU(3)$ gauge field theory governing the interactions of quarks and gluons. As quarks are fermions, they are described by a Dirac lagrangian coupled to an external gauge field. For a quark field annihilation operator $\psi_f$, Dirac field creation operator $\overline{\psi}=\psi^\dagger_f\gamma^0$ with quark flavour $f$, we have\cite{2010QFT, 2015Colquhoun}:
+\begin{equation}
+    \label{eq:Dirac}
+    \mathcal{L} = \sum_f \psi^\dagger_f (i\slashed{D}-m_f) \psi_f - \frac{1}{4}F^a_{\mu\nu} F^{\mu\nu}_a
+\end{equation}
+In this Lagrangian we have a gauge covariant derivative $\slashed{D} = \slashed{\partial} + i g_s \slashed{A}^a \lambda_a / 2$. Here and in the rest of this section, we leave the indices referring to colour implicit. However to be clear, the quarks carry a conserved \emph{colour charge} analogous to the electric charge in QED\@. There are three separate \emph{colours} which are often called \emph{red}, \emph{green}, and \emph{blue}\footnote{Although, the choice of basis is arbitrary and can be transformed by any matrix $U \in SU(3)$.}. The colour of a quark is represented by a colour spinor, which is the space acted on by the $\lambda_a$. It is these indices, referring to the matrix multiplication, that are omitted.
+
+The other important quantity is the gluon field strength tensor:
+\begin{equation}
+    \label{eq:FieldTensor}
+    F^a_{\mu\nu} = \partial_\mu A_\nu^a - \partial_\nu A_\mu^a - g_s f_{abc} A_\mu^b A_\nu^c
+\end{equation}
+Here the latin indices label the 8 generators\footnote{$\lambda_a$ are the Gell-Mann matrices, which form a basis of $SU(3)$.} ($t_a = \lambda_a/2$) of the QCD $\mathfrak{su}(3)$ Lie algebra with (totally antisymmetric) structure constants $\comm{t_a}{t_c} = i f_{abc} t_c$. These generators are considered to be linearly independent colour charges of gluons. $A_\mu^a$ are the respective 4-potentials, which are coupled to the quarks.
+
+Unlike in QED, QCD allows for self-interaction of the gauge bosons. As a result, QCD is known as an asymptotically-free theory: as interactions are taken to higher energies, the forces involved become weaker. This leads to colour confinement, where only bound states with zero overall colour charge can be isolated. Traditional perturbation theory expands a system at low energy, but in the case of QCD this would give divergent forces which would invalidate such a method. Instead, a common approach is solving systems on a lattice.
+
+\subsection{Lattice QCD}
+Lattice QCD is a method to solve QCD systems by placing the fields on a spacetime lattice. To see how this is done we first consider the path integral formulation of QFT\@. To compute the expectation of an operator, we take a functional integral of the Lagrangian over all possible field configurations\cite{1948Feynman, 2015Colquhoun}
+
+\begin{alignat}{3}
+    \label{eq:PathIntegral}
+    \expval{\mathcal{O}} &= \dfrac{1}{\mathcal{Z}}&&\int\D{\psi} \mathcal{O}  &&\exp(i \int \dd[4]{x} \mathcal{L}(\psi, \partial \psi)), \\
+    \mathcal{Z}          &=                       &&\int\D{\psi}              &&\exp(i \int \dd[4]{x} \mathcal{L}(\psi, \partial \psi)),
+\end{alignat}
+where $\mathcal{Z}$ is the partition function. This is named in analogy with the statistical partition function, which can be obtained by performing a Wick rotation $t \mapsto it$.
+
+Clearly it is not feasible to integrate over an infinite-dimensional space of functions, so we use a technique called regularisation. To do this we replace the $4D$ continuum integral by a spacetime lattice. Often an isotropic lattice is chosen (with lattice spacing $a$), however the main aim of this project is to use an anisotropic lattice the spatial and temporal lattice spacings differ.
+
+We define the quark fields\cite{2015Colquhoun} $\psi(x)$ only on lattice points $x_\mu$, and the gluon fields $U_{\hat{\delta}}(x) = U(x, x + \hat{\delta})$ defined on the links between the lattice points. The links are specified as written, by a point $x^\mu$ and a unit vector $\hat{\delta}^\mu$ specifying the direction along the lattice. The conjugate field $U^\dagger_{\hat{\delta}}(x) = U(x + \hat{\delta}, x)$ gives the link from $x+\hat{\delta}$ back to $x$. Once we have our particle fields, it is possible to replace derivatives with differences in fields at adjacent lattice sites. One can then construct an appropriate gauge invariant action, called the Wilson action.
+
+We hope that by using this lattice model of QCD, we can produce sensible results in the limit of a short lattice spacing. Unfortunately, when the computations are carried out there are a lot of discretisation errors\cite{2009LatticeDiscretization}. By a careful choice of discrete derivative, we can remove $\order{a}$ error terms. The $\order{a^2}$ error terms can also be removed by adding and subtracting appropriate counterterms\cite{1983ImproveLatticeAction}. This leaves us with a discretised theory with errors in $\order{a^3}$, which we hope is small enough that our extrapolation to $a \rightarrow 0$ is accurate.
+
+\subsection{NRQCD}
+In this project we are looking specifically at bottomonium mesons. In a relativistic approach, there are certain constraints placed upon both our lattice spacing and our lattice size. These constraints require a lattice with lattice spacing equal or smaller than \SI{0.45}{fm} to compute b-quarks relativistically\cite{2015Colquhoun}. In practice sometimes these fine lattices are not easily available, or even if they are the computation becomes very expensive. Instead we take a non-relativistic approach. This NRCQD method is justified by the relatively large mass of the b-quark: we can expand our action in factors of $1/m_b$ and neglect the appropriately higher order terms.
+
+This is the first step in the Foldy-Wouthuysen-Tani (FWT) transformation. Carrying on with the remaining steps gives us our lattice NRQCD, which to first order in $v^2$ (the first term in the non-relativistic expansion) is the Schrödinger Lagrangian:
+
+\begin{equation}
+    \label{eq:NRQCDS0}
+    \mathcal{L}_0 = \psi^\dagger(x)\left(i D_t + \frac{\vb{D}^2}{2m_b}\right)\psi(x),
+\end{equation}
+where $D_t$ is the time component of the gauge invariant derivative, and $\vb{D}$ is the spatial 3-vector component. The expansion to $v^4$ is required for an interesting theory, and involves terms that interact\cite{2010Meinel} with the chromoelectric $E_j = F_{oj}$ and chromomagnetic $B_j = -\frac{1}{2}\epsilon_{jkl}F^{kl}$ fields, which is exact to $\order{1/m_b^3}$. In this project, we will in fact use an action which is expanded to $\order{v^6}$.
+
+\section{Statistical methods and Data}
+\subsection{Jacknife averaging}
+Given a large sample of data with completely unknown errors, we often want to compute unbiased estimators for statistical parameters. One such way is to use Jacknife averaging\cite{efron1982jackknife}. Consider a sample of $n$ i.i.d.\ values $x_i \sim F$. Construct $n$ mean estimates $\overline{x}_i = \sum_{j\neq i} \frac{x_j}{n-1}$. The average of these sample means $\overline{x} = \sum_i\frac{\overline{x}_i}{n}$ is precisely the mean of the whole sample, and the error on this estimate is given by the variance $\text{Var}[\overline{x}] = \frac{n-1}{n}\sum_i{(\overline{x}_i - \overline{x})}^2$ of the distribution of $\overline{x}_i$. That is, we have an unbiased estimator for the mean and standard defiation of $F$ given by $\overline{x} \pm \sqrt{\text{Var}[\overline{x}]}$. In fact by replacing the means $\overline{x}_i$ above by (almost) any estimator $\overline{\theta}_i$, it is possible to construct an new estimator, using a slightly more laborious method, which has an asymptotically smaller bias\cite{mcintosh2016jackknife}.
+
+\subsection{Bayesian analysis}
+%TODO: Complete this section
+
+\subsection{Data}
+Data for this whole project has been provided by Dr.\ B.\ Chakraborty. This data has been produced by isotropic lattice NRQCD on a variety of lattice spacings, described in Table~\ref{table:latticeSpacing}. Each correlator sample corresponds to a randomised gauge configuration of gluon fields.
+\begin{table}
+\centering
+\begin{tabular}{c S[table-format=1.5] S[table-format=2.0]}
+    Label       & {Spacing $a$ (\si{fm})}  & {Lattice size}\\
+    \midrule 
+    Very coarse & {TBC}                     & {TBC}\\
+    Coarse      & 0.12404                   & 64 \\
+    Fine        & 0.09023                   & 96
+\end{tabular}
+\caption{Todo: this caption.\label{table:latticeSpacing}}
+\end{table}
+
+
+\section{Preliminary study}
+
+Using Jacknife averaging, an existing dataset\cite{data:prelim_meff} was analysed. This is a set of 2-point correlators for a $D-$meson ($c\overline{q}$). In this dataset there are $n=489$ gauge configurations, with $T=96$ time slices. The average over Jacknife averages is shown in Figure~\ref{fig:2ptCorrelator}. From\cite{2016Chakraborty} we know that these correlators are expected to follow the following relationship,
+
+\begin{equation}
+    \label{eq:2ptCorrelator}
+    G(t) = \sum_n a_n^2 (e^{-E_n t} + e^{-E_n(T-t)}) + {(-1)}^t \sum_n {a_o}_n^2 (e^{-{E_o}_n t} + e^{{-E_o}_n (T-t)}),
+\end{equation}
+where $E_n$ gives the energy (or mass) of the $n^{th}$ excited state, and $a_n$ gives its amplitude. In this expression, the reflected $T-t$ terms are due to the periodic boundary conditions, and the ${E_o}_n$ terms are oscillatory contributions due to the fermion doubling in the staggered quark analysis. 
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\imgwidth]{correlation_2pt_hisq_msml5_fine_D_nongold_489conf.png}
+    \caption{Average 2 point correlator for $n=489$ gauge configurations on a fine lattice. Computed by using Jacknife averaging. Away from the endpoints correlator values are very small, which is consistent with our assumption that our exponentials decay sufficiently quickly.\label{fig:2ptCorrelator}}
+\end{figure}
+
+If we assume the oscilatory terms are small then one can look near the middle of the data (shown in Figure~\ref{fig:2ptCorrelator}). Here the only relevant term is the ground state ($a_0, E_0$). As a result, in this region we should be able to compute an estimate for the ground state effective mass, 
+
+\begin{equation}
+    \label{eq:meff}
+    m_{\text{eff}}(t) = \log(\frac{G(t)}{G(t+1)}).
+\end{equation}
+
+When actually computing this value, we must make sure that we do not go past halfway through the data, as the second half (with rising exponentials) will lead to a negative effective mass with the same magnitude. As shown in Figure~\ref{fig:2ptCorrelatorMeff}, for the provided (non-Gold D meson on a fine lattice), the effective mass is approximately $m_\text{eff} \approx 0.87$. To compute this value we took the average of the time-dependent values for time steps $t = 24 - 36$, where the data has clearly plateaued but still has small errors.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\imgwidth]{meff_2pt_hisq_msml5_fine_D_nongold_489conf.png}
+    \caption{Estimate for $m_\text{eff}$ using Equation~\ref{eq:meff}.\label{fig:2ptCorrelatorMeff}} 
+\end{figure}
+
+\clearpage
+\section{Data Analysis}
+Throughout this section, all correlator data has been Jackknife averaged to give an estimated Gaussian random variable at each time slice.
+
+\printbibliography{}
+
+
+\end{document}
