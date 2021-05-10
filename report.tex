@@ -2,8 +2,9 @@
 \input{preamble.tex}
 \graphicspath{\
 {../PartIIIProject/preliminary/images/}
-{../PartIIIProject/fitter/images_separate/2pt_hisq_coarse_D_Gold_K_p0_1053conf/}
-{../PartIIIProject/fitter/images_separate/2pt_hisq_msml5_fine_K_zeromom_D_Gold_nongold_495conf/}
+{../PartIIIProject/fitter/images_separate/MeV/2pt_hisq_coarse_D_Gold_K_p0_1053conf/}
+{../PartIIIProject/fitter/images_separate/MeV/2pt_hisq_msml5_fine_K_zeromom_D_Gold_nongold_495conf/}
+{../PartIIIProject/fitter/images_separate/MeV/2pt_hisq_very-coarse_D_Gold_K_1000conf/}
 {./images/}}
 
 \title{Tuning NRQCD b-quarks for Bottomonium \\ Spectroscopy Using Lattice QCD}
@@ -13,7 +14,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-    Quantum Chromodynamics (QCD) is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Bottomonium mesons can be studied using Non-Relativistic QCD (NRQCD) as the b-quarks are much heavier in mass compared to the lighter quarks and need super fine lattices to simulate them relativistically which are not easily available. This project will involve modifying an existing NRQCD codebase to support an anisotropic lattice, with finer graining in the time component. The b-quark mass $m_b$ will be tuned, along with the degree of lattice anisotropy, in order to produce spectra for both vector and scalar $B$-mesons. These will be compared using established lattice QCD statistical techniques (\code{lsqfit} and \code{corrfitter}) with existing spectra.
+    Quantum Chromodynamics (QCD) is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Bottomonium mesons can be studied using Non-Relativistic QCD (NRQCD) as the b-quarks are much heavier in mass compared to the lighter quarks and need super fine lattices to simulate them relativistically which are not easily available. This project will involve modifying an existing NRQCD codebase to support an anisotropic lattice, with finer graining in the time component. The b-quark mass $m_b$ will be tuned, along with the degree of lattice anisotropy, in order to produce spectra for both vector and scalar $B$-mesons. These will be compared using established lattice QCD statistical techniques (\code{lsqfit} and \code{corrfitter}) with existing spectra. (TODO:\@ Correct this \em no longer studying anisotropy, nor modifying code.)
 \end{abstract}
 
 \tableofcontents
@@ -42,7 +43,7 @@ Here the latin indices label the 8 generators\footnote{$\lambda_a$ are the Gell-
 
 Unlike in QED, QCD allows for self-interaction of the gauge bosons. As a result, QCD is known as an asymptotically-free theory: as interactions are taken to higher energies, the forces involved become weaker. This leads to colour confinement, where only bound states with zero overall colour charge can be isolated. Traditional perturbation theory expands a system at low energy, but in the case of QCD this would give divergent forces which would invalidate such a method. Instead, a common approach is solving systems on a lattice.
 
-\subsection{Lattice QCD}
+\subsection{Lattice QCD}\label{section:lattice}
 Lattice QCD is a method to solve QCD systems by placing the fields on a spacetime lattice. To see how this is done we first consider the path integral formulation of QFT\@. To compute the expectation of an operator, we take a functional integral of the Lagrangian over all possible field configurations\cite{1948Feynman, 2015Colquhoun}
 
 \begin{alignat}{3}
@@ -52,7 +53,7 @@ Lattice QCD is a method to solve QCD systems by placing the fields on a spacetim
 \end{alignat}
 where $\mathcal{Z}$ is the partition function. This is named in analogy with the statistical partition function, which can be obtained by performing a Wick rotation $t \mapsto it$.
 
-Clearly it is not feasible to integrate over an infinite-dimensional space of functions, so we use a technique called regularisation. To do this we replace the $4D$ continuum integral by a spacetime lattice. Often an isotropic lattice is chosen (with lattice spacing $a$), however the main aim of this project is to use an anisotropic lattice the spatial and temporal lattice spacings differ.
+Clearly it is not usually feasible to integrate over an infinite-dimensional space of functions, so we use a technique called regularisation. To do this we replace the $4D$ continuum integral by a spacetime lattice. Often an isotropic lattice is chosen (with lattice spacing $a$), however the main aim of this project is to use an anisotropic lattice the spatial and temporal lattice spacings differ.
 
 We define the quark fields\cite{2015Colquhoun} $\psi(x)$ only on lattice points $x_\mu$, and the gluon fields $U_{\hat{\delta}}(x) = U(x, x + \hat{\delta})$ defined on the links between the lattice points. The links are specified as written, by a point $x^\mu$ and a unit vector $\hat{\delta}^\mu$ specifying the direction along the lattice. The conjugate field $U^\dagger_{\hat{\delta}}(x) = U(x + \hat{\delta}, x)$ gives the link from $x+\hat{\delta}$ back to $x$. Once we have our particle fields, it is possible to replace derivatives with differences in fields at adjacent lattice sites. One can then construct an appropriate gauge invariant action, called the Wilson action.
 
@@ -68,26 +69,36 @@ This is the first step in the Foldy-Wouthuysen-Tani (FWT) transformation. Carryi
     \mathcal{L}_0 = \psi^\dagger(x)\left(i D_t + \frac{\vb{D}^2}{2m_b}\right)\psi(x),
 \end{equation}
 where $D_t$ is the time component of the gauge invariant derivative, and $\vb{D}$ is the spatial 3-vector component. The expansion to $v^4$ is required for an interesting theory, and involves terms that interact\cite{2010Meinel} with the chromoelectric $E_j = F_{oj}$ and chromomagnetic $B_j = -\frac{1}{2}\epsilon_{jkl}F^{kl}$ fields, which is exact to $\order{1/m_b^3}$. In this project, we will in fact use an action which is expanded to $\order{v^6}$.
+TODO: This section needs updating, we are not only looking at bottomonium
+
+\subsection{Relating lattice and physical}
+TODO: This is for chiral-continuum limit etc.
+Any mass specified in lattice units can be converted into physical units by $m = (\hbar c) m^\mathrm{lattice} / a$.
 
 \section{Statistical methods and Data}
 \subsection{Jacknife averaging}
 Given a large sample of data with completely unknown errors, we often want to compute unbiased estimators for statistical parameters. One such way is to use Jacknife averaging\cite{efron1982jackknife}. Consider a sample of $n$ i.i.d.\ values $x_i \sim F$. Construct $n$ mean estimates $\overline{x}_i = \sum_{j\neq i} \frac{x_j}{n-1}$. The average of these sample means $\overline{x} = \sum_i\frac{\overline{x}_i}{n}$ is precisely the mean of the whole sample, and the error on this estimate is given by the variance $\text{Var}[\overline{x}] = \frac{n-1}{n}\sum_i{(\overline{x}_i - \overline{x})}^2$ of the distribution of $\overline{x}_i$. That is, we have an unbiased estimator for the mean and standard defiation of $F$ given by $\overline{x} \pm \sqrt{\text{Var}[\overline{x}]}$. In fact by replacing the means $\overline{x}_i$ above by (almost) any estimator $\overline{\theta}_i$, it is possible to construct an new estimator, using a slightly more laborious method, which has an asymptotically smaller bias\cite{mcintosh2016jackknife}.
 
 \subsection{Bayesian analysis}
-%TODO: Complete this section
+Using the \code{corrfitter}\cite{lepage2020corrfitter} Python package, it is possible to perform a least-squares regression on our 2-point correlator data. For a given set of priors and a data set, the least-squares regression gives best-fit values for parameters of choice. In the context of this project, we are interested in fitting the amplitudes $a_n$, ${a_o}_n$ and the $\log$ of the energy differences, $\log(\dd E_n)$, $\log({\dd E_o}_n)$. In particular, the log of energy differences allows us to implicitly force the energy levels of the fit to strictly increase.
+
+For a fit of this type, we expect a good quality fit to have $\chi^2/\mathrm{dof} \approx 1$. Values much larger than this are a poor fit, and values closer to $0$ could indicate overfitting. There are other measures of goodness-of-fit such as the Gaussian Bayes Factor and the Q value, however their use is unnecessary here and we will continue only using the $\chi^2$ measure.
 
 \subsection{Data}
 Data for this whole project has been provided by Dr.\ B.\ Chakraborty. This data has been produced by isotropic lattice NRQCD on a variety of lattice spacings, described in Table~\ref{table:latticeSpacing}. Each correlator sample corresponds to a randomised gauge configuration of gluon fields.
+
+By using a finite lattice we have discretisation errors (discussed in Section~\ref{section:lattice}), which we can only eliminate by extrapolating from multiple datasets, to the contiuum limit. Additionally, for computational reasons it is not possible to use physical light quark masses for all lattice sizes. As a result, we must also extrapolate to the chiral limit, where $m_l=0$, which is close to the physical value of $m_l \approx 0.02m_s$.
+
 \begin{table}
 \centering
-\begin{tabular}{c S[table-format=1.5] S[table-format=2.0]}
-    Label       & {Spacing $a$ (\si{fm})}  & {Lattice size}\\
+\begin{tabular}{l S[table-format=1.5] S[table-format=2.0] S[table-format=1.3]}
+    Label       & {Spacing $a$ (\si{fm})}   & {Lattice size (time)} & {$m_l / m_s$}\\
     \midrule 
-    Very coarse & {TBC}                     & {TBC}\\
-    Coarse      & 0.12404                   & 64 \\
-    Fine        & 0.09023                   & 96
+    Very Coarse & 0.1509                    & 48                    & 0.036\\
+    Coarse      & 0.12404                   & 64                    & 0.2\\
+    Fine        & 0.09023                   & 96                    & 0.2\\
 \end{tabular}
-\caption{Todo: this caption.\label{table:latticeSpacing}}
+\caption{Parameters of the data used in the main part of this project. Corresponding to sets 1, 5, 6 from table I\cite{chakraborty2021improved} respectively. The lattice size is the number of discreet time slices that are recorded.\label{table:latticeSpacing}}
 \end{table}
 
 
@@ -101,7 +112,7 @@ Using Jacknife averaging, an existing dataset\cite{data:prelim_meff} was analyse
 \end{equation}
 where $E_n$ gives the energy (or mass) of the $n^{th}$ excited state, and $a_n$ gives its amplitude. In this expression, the reflected $T-t$ terms are due to the periodic boundary conditions, and the ${E_o}_n$ terms are oscillatory contributions due to the fermion doubling in the staggered quark analysis. 
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=\imgwidth]{correlation_2pt_hisq_msml5_fine_D_nongold_489conf.png}
     \caption{Average 2 point correlator for $n=489$ gauge configurations on a fine lattice. Computed by using Jacknife averaging. Away from the endpoints correlator values are very small, which is consistent with our assumption that our exponentials decay sufficiently quickly.\label{fig:2ptCorrelator}}
@@ -114,9 +125,9 @@ If we assume the oscilatory terms are small then one can look near the middle of
     m_{\text{eff}}(t) = \log(\frac{G(t)}{G(t+1)}).
 \end{equation}
 
-When actually computing this value, we must make sure that we do not go past halfway through the data, as the second half (with rising exponentials) will lead to a negative effective mass with the same magnitude. As shown in Figure~\ref{fig:2ptCorrelatorMeff}, for the provided (non-Gold D meson on a fine lattice), the effective mass is approximately $m_\text{eff} \approx 0.87$. To compute this value we took the average of the time-dependent values for time steps $t = 24 - 36$, where the data has clearly plateaued but still has small errors.
+When actually computing this value, we must make sure that we do not go past halfway through the data, as the second half (with rising exponentials) will lead to a negative effective mass with the same magnitude. As shown in Figure~\ref{fig:2ptCorrelatorMeff}, for the provided (non-Gold D meson on a fine lattice), the effective mass is approximately $m_\text{eff} \approx 0.87 \approx \SI{1900}{MeV}$. To compute this value we took the average of the time-dependent values for time steps $t = 24 - 36$, where the data has clearly plateaued but still has small errors.
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=\imgwidth]{meff_2pt_hisq_msml5_fine_D_nongold_489conf.png}
     \caption{Estimate for $m_\text{eff}$ using Equation~\ref{eq:meff}.\label{fig:2ptCorrelatorMeff}} 
@@ -124,9 +135,86 @@ When actually computing this value, we must make sure that we do not go past hal
 
 \clearpage
 \section{Data Analysis}
-Throughout this section, all correlator data has been Jackknife averaged to give an estimated Gaussian random variable at each time slice.
+Throughout this section, all correlator data has been Jackknife averaged to give an estimated Gaussian variable at each time slice. The analysis code is a very heavily modified version of code again provided by Chakraborty, which includes optimised prior values. Throughout this analysis we are fitting up to 6 terms in the correlator (Equation~\ref{eq:2ptCorrelator}). It is not reasonable to extract physical results from most of these terms, however we can certainly look at the ground state of each meson. Taking the most reliable value of meson mass for each of the data sets, it is possible to extrapolate to the chiral and contiuum limits to compute final estimates for the neutral $K$ and $D$ meson masses.
+
+During the analysis, there are two main fitting parameters that are varied. $t_\mathrm{min}$ tells the fitting software how many time slices to ignore from the start and the end of each set of correlator data. This is useful as there are extra effects happening at these early time scales, and we would like to ignore these for simplicity. The other parameter, $n$, corresponds to the number of exponentials for which we are providing prior data. Studying energy levels larger than $n$ is completely unreasonable as these are only used to acheive a better fit, and the values are unphysical.
+
+For all datasets that are analysed, we limit the fitting for $K$ mesons to only have $t_\mathrm{min} = 3$. For $D$ mesons we vary this as $t_\mathrm{min} \in \{3, 4, 5, 6, 7, 9\}$. For both mesons, we also vary $n \in \{1, \ldots, 6\}$. In all of the following plots, $n=4$ was determined to be the most reliable point, so all values given on the plots are evaluated here. For plots showing fitting results, error bars are indicated in red. When a data point (error bar) appears missing it is either too large (small) to be shown on the scale. For convenience, the first 4 data points of the fitting quality plots have also been reproduced on the plots, as the majority of these points are far too large to be shown on the same scale as the rest of the points.
+
+\subsection{Fit convergence}
+%\paragraph{Fine lattice}
+The fine dataset corresponds to a lattice spacing $a \approx \SI{0.09}{fm}$ and a light quark mass $m_l \approx 0.2 m_s$. For the $K$ meson, it is clear that for any value of $n\geq4$, the fit has converged (Figure~\ref{fig:fit_fine_K}\footnote{Plots of this form have been produced for all combinations of dataset and $t_\mathrm{min}$, however where they do not add to the discussion, they have been ommitted.}). Inspection of the results for $D$ meson show that the fits tend to converge first for $n=3$ or $4$. Now we turn to the fit quality, where as we can see in Figure~\ref{fig:fit_fine_qual}, the fitting converged well for all $t_\mathrm{min}$ and for all $n \geq 4$.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\imgwidth]{fine_tmin3_K.png}
+    \caption{$K$ meson fitting results on a fine lattice.\label{fig:fit_fine_K}}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\imgwidth]{fine_fitQuality.png}
+    \caption{Fitting quality for fine lattice.\label{fig:fit_fine_qual}}
+\end{figure}
+
+\bigskip
+%\paragraph{Coarse lattice}
+The coarse dataset corresponds to a lattice spacing $a \approx \SI{0.12}{fm}$ and a light quark mass $m_l \approx 0.2 m_s$. In this dataset, we can see that the $K$ meson values (Figure~\ref{fig:fit_coarse_K}) actually converge for $n=3$. More generally, the fit quality (Figure~\ref{fig:fit_coarse_qual}) suggests that $n = 3$ or $4$ are the earliest parameters that converge, although this is more reliable for higher $t_\mathrm{min}$.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\imgwidth]{coarse_tmin3_K.png}
+    \caption{$K$ meson fitting results on a coarse lattice.\label{fig:fit_coarse_K}}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\imgwidth]{coarse_fitQuality.png}
+    \caption{Fitting quality for coarse lattice.\label{fig:fit_coarse_qual}}
+\end{figure}
+
+\bigskip
+%\paragraph{Very coarse lattice}
+The very coarse dataset corresponds to a lattice spacing $a \approx \SI{0.15}{fm}$ and a light quark mass $m_l \approx 0.036m_s$. Here we see that the $K$ meson fit (Figure~\ref{fig:fit_very-coarse_K}) apepars to converge even for $n=2$. The fit quality plots (Figure~\ref{fig:fit_very-coarse_qual}) show a different result however. Even at higher $t_\mathrm{min}$, the $\chi^2$ parameter does not reach a reasonable value until at least $n=3$.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\imgwidth]{very-coarse_tmin3_K.png}
+    \caption{$K$ meson fitting results on a very coarse lattice.\label{fig:fit_very-coarse_K}}
+\end{figure}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=\imgwidth]{very-coarse_fitQuality.png}
+    \caption{Fitting quality for very coarse lattice.\label{fig:fit_very-coarse_qual}}
+\end{figure}
+
+\subsection{Results}
+Taking into account the values of parameters for which all the datasets had reliable fits, the smallest (and least likely to lead to overfitting) viable choices for the parameters are $n=4$ and $t_\mathrm{min} = 6$. The collection of $E_0$ and $a_0$ values that are found with these parameters is given in Table~\ref{table:fitResults}. The energy values here seem reasonable as they correspond roughly to the masses provided in \cite{tanabashi2018review}: $m_K \approx \SI{497}{MeV}$ and $m_D \approx \SI{1865}{MeV}$. Of course, these values are far outside the provided statistical error bounds, but this is expected as we have both unphysical quark masses, and discretisation errors. Our next step will extrapolate our values to the chiral-continuum limit, which should give accurate results.
+
+\begin{table}
+\centering
+\begin{tabular}{l S[table-format=1.2] S[table-format=1.3] S[table-format=3.5] S[table-format=4.4] S[table-format=3.7,retain-explicit-plus] S[table-format=3.7,retain-explicit-plus]}
+    \toprule
+                &                   &                   & \multicolumn{2}{c}{$E_0$ (MeV)}       & \multicolumn{2}{c}{$a_0$}\\
+    \cmidrule(lr){4-5}\cmidrule(lr){6-7}
+    Label       & {$a$ (\si{fm})}   & {$m_l / m_s$}     & {K}               & {D}               & {K}                & {D}\\
+    \midrule
+    Very Coarse & 0.15              & 0.036             & 495.92(08)        & 1887.3(51)        & -0.28101(11)       & -0.2286(65)\\
+    Coarse      & 0.12              & 0.2               & 528.28(15)        & 1893.0(15)        & +0.60853(37)       & +0.1880(12)\\
+    Fine        & 0.09              & 0.2               & 530.16(24)        & 1889.3(11)        & +0.13978(12)       & +0.1242(07)\\
+    \bottomrule
+\end{tabular}
+\caption{Results from fitting all datasets. $t_\mathrm{min}=6$ for $D$ mesons, and $n=4$ for all results. Uncertainties given in parentheses are statistical.\label{table:fitResults}}
+\end{table}
+
+\clearpage
+\section{Chiral-Continuum Extrapolation}
+TODO: Extrapolation
+
+\section{Conclusion}
+TODO: Conclusion
 
 \printbibliography{}
-
 
 \end{document}

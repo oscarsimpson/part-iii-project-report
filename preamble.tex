@@ -3,13 +3,21 @@
 \usepackage{physics}
 \usepackage{siunitx}
 \usepackage{slashed}
+
+\makeatletter
+\@ifclassloaded{beamer}{%
+}{%
 \usepackage[plain]{fullpage}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[hidelinks]{hyperref}
+}
+\makeatother
+
+
 \usepackage{titlesec}
 \usepackage{marvosym}
-\usepackage[usenames,dvipsnames]{color}
 \usepackage{verbatim}
-\usepackage{enumitem}
-\usepackage[hidelinks]{hyperref}
+%\usepackage{enumitem}
 \usepackage{fancyhdr}
 \usepackage[english]{babel}
 
@@ -19,6 +27,7 @@
 \usepackage{booktabs}
 \usepackage{graphicx}
 \graphicspath{{./images/}}
+\usepackage{subcaption}
 
 \usepackage{csquotes}
 \usepackage[sorting=none]{biblatex}
@@ -29,4 +38,4 @@
 \newcommand{\D}[1]{\mathinner{\operatorname{\mathrm{\mathcal{D}}}\!#1}}
 
 \newlength{\imgwidth}
-\setlength{\imgwidth}{0.8\textwidth}
+\setlength{\imgwidth}{0.85\textwidth}
