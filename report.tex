@@ -122,7 +122,7 @@ If we assume the oscillatory terms are small then one can look near the middle o
 
 \begin{equation}
     \label{eq:meff}
-    m_{\text{eff}}(t) = \log(\frac{G(t)}{G(t+1)}).
+    m_{\mathrm{eff}}(t) = \log(\frac{G(t)}{G(t+1)}).
 \end{equation}
 
 When actually computing this value, we must make sure that we do not go past halfway through the data, as the second half (with rising exponentials) will lead to a negative effective mass with the same magnitude. As shown in Figure~\ref{fig:2ptCorrelatorMeff}, for the provided (non-Gold D meson on a fine lattice), the effective mass is approximately $m_\text{eff} \approx 0.87 \approx \SI{1900}{MeV}$. To compute this value we took the average of the time-dependent values for time steps $t = 24 - 36$, where the data has clearly plateaued but still has small errors.
@@ -190,7 +190,7 @@ The very coarse dataset corresponds to a lattice spacing $a \approx \SI{0.15}{fm
 \end{figure}
 
 \subsection{Results}
-Taking into account the values of parameters for which all the datasets had reliable fits, the smallest (and least likely to lead to overfitting) viable choices for the parameters are $n=4$ and $t_\mathrm{min} = 6$. The collection of $E_0$ and $a_0$ values that are found with these parameters is given in Table~\ref{table:fitResults}. The energy values here seem reasonable as they correspond roughly to the masses provided in \cite{tanabashi2018review}: $m_K \approx \SI{497}{MeV}$ and $m_D \approx \SI{1865}{MeV}$. Of course, these values are far outside the provided statistical error bounds, but this is expected as we have both unphysical quark masses, and discretisation errors. Our next step will extrapolate our values to the chiral-continuum limit, which should give accurate results.
+Taking into account the values of parameters for which all the datasets had reliable fits, the smallest (and least likely to lead to overfitting) viable choices for the parameters are $n=4$ and $t_\mathrm{min} = 6$. The collection of $E_0$ and $a_0$ values that are found with these parameters is given in Table~\ref{table:fitResults}. The energy values here seem reasonable as they correspond roughly to the masses provided in \cite{zyla2020review}: $m_K \approx \SI{498}{MeV}$ and $m_D \approx \SI{1865}{MeV}$. Of course, these values are far outside the provided statistical error bounds, but this is expected as we have both unphysical quark masses, and discretisation errors. Our next step will extrapolate our values to the chiral-continuum limit, which should give accurate results.
 
 \begin{table}
 \centering
@@ -212,10 +212,10 @@ Taking into account the values of parameters for which all the datasets had reli
 Using the results we found above, it should be possible to extrapolate down to the chiral (physical light quark mass) and continuum (to avoid discretisation errors) limits. From Equation 16 in~\cite{chakraborty2017nonperturbative} we know that we should be able to model this extrapolation well. However, we have a total of 6 values that we are fitting, so it would be dubious to fit a model with any more than 6 parameters. As a result, we take the 3 lowest order terms (each produces a pair of parameters for $K$ and $D$ mesons respectively) which gives us
 \begin{equation}
     \label{eq:extrapolate}
-    m = m_\textrm{phys} \Big(1 + c_\delta \frac{m_l}{m_s}\Big)\Big(1 + c_{a^2} a^2\Big).
+    m = m_\mathrm{phys} \Big(1 + c_\delta \frac{m_l}{m_s}\Big)\Big(1 + c_{a^2} a^2\Big).
 \end{equation}
 
-When we perform a $\chi^2$ fit to these values\footnote{The priors used for this fit are drawn from the same source.} we find a $\chi^2 / \mathrm{dof} = 0.23$ which signifies a good quality fit. This also does not appear to be overfit, which was a concern given that we are fitting 6 parameters to 6 data points. Table~\ref{table:extrapolated_mass} shows that the predicted values match very well with the observed values, as expected. Also shown are the extrapolated values which are consistent with results from the literature, $m_{K^0} = \SI{497.611(13)}{MeV}$ and $m_{D^0} = \SI{1864.83(5)}{MeV}$ to within $3\sigma$ of our statistical uncertainty.
+When we perform a $\chi^2$ fit to these values\footnote{The priors used for this fit are drawn from the same source.} we find a $\chi^2 / \mathrm{dof} = 0.23$ which signifies a good quality fit. This also does not appear to be overfit, which was a concern given that we are fitting 6 parameters to 6 data points. Table~\ref{table:extrapolated_mass} shows that the predicted values match very well with the observed values, as expected. Also shown are the extrapolated values which are consistent with results from the literature\cite{zyla2020review}, $m_{K^0} = \SI{497.611(13)}{MeV}$ and $m_{D^0} = \SI{1864.83(5)}{MeV}$ to within $3\sigma$ of our statistical uncertainty.
 
 \begin{table}
     \centering

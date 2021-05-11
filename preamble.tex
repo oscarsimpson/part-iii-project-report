@@ -39,3 +39,10 @@
 
 \newlength{\imgwidth}
 \setlength{\imgwidth}{0.85\textwidth}
+
+\makeatletter
+\@ifclassloaded{beamer}{%
+\setlength{\imgwidth}{0.5\textwidth}
+}{%
+}
+\makeatother
