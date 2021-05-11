@@ -118,7 +118,7 @@ where $E_n$ gives the energy (or mass) of the $n^{th}$ excited state, and $a_n$ 
     \caption{Average 2 point correlator for $n=489$ gauge configurations on a fine lattice. Computed by using Jacknife averaging. Away from the endpoints correlator values are very small, which is consistent with our assumption that our exponentials decay sufficiently quickly.\label{fig:2ptCorrelator}}
 \end{figure}
 
-If we assume the oscilatory terms are small then one can look near the middle of the data (shown in Figure~\ref{fig:2ptCorrelator}). Here the only relevant term is the ground state ($a_0, E_0$). As a result, in this region we should be able to compute an estimate for the ground state effective mass, 
+If we assume the oscillatory terms are small then one can look near the middle of the data (shown in Figure~\ref{fig:2ptCorrelator}). Here the only relevant term is the ground state ($a_0, E_0$). As a result, in this region we should be able to compute an estimate for the ground state effective mass, 
 
 \begin{equation}
     \label{eq:meff}
@@ -208,12 +208,47 @@ Taking into account the values of parameters for which all the datasets had reli
 \caption{Results from fitting all datasets. $t_\mathrm{min}=6$ for $D$ mesons, and $n=4$ for all results. Uncertainties given in parentheses are statistical.\label{table:fitResults}}
 \end{table}
 
-\clearpage
 \section{Chiral-Continuum Extrapolation}
-TODO: Extrapolation
+Using the results we found above, it should be possible to extrapolate down to the chiral (physical light quark mass) and continuum (to avoid discretisation errors) limits. From Equation 16 in~\cite{chakraborty2017nonperturbative} we know that we should be able to model this extrapolation well. However, we have a total of 6 values that we are fitting, so it would be dubious to fit a model with any more than 6 parameters. As a result, we take the 3 lowest order terms (each produces a pair of parameters for $K$ and $D$ mesons respectively) which gives us
+\begin{equation}
+    \label{eq:extrapolate}
+    m = m_\textrm{phys} \Big(1 + c_\delta \frac{m_l}{m_s}\Big)\Big(1 + c_{a^2} a^2\Big).
+\end{equation}
+
+When we perform a $\chi^2$ fit to these values\footnote{The priors used for this fit are drawn from the same source.} we find a $\chi^2 / \mathrm{dof} = 0.23$ which signifies a good quality fit. This also does not appear to be overfit, which was a concern given that we are fitting 6 parameters to 6 data points. Table~\ref{table:extrapolated_mass} shows that the predicted values match very well with the observed values, as expected. Also shown are the extrapolated values which are consistent with results from the literature, $m_{K^0} = \SI{497.611(13)}{MeV}$ and $m_{D^0} = \SI{1864.83(5)}{MeV}$ to within $3\sigma$ of our statistical uncertainty.
+
+\begin{table}
+    \centering
+    \begin{tabular}{l S[table-format=3.5] S[table-format=4.4] S[table-format=3.5] S[table-format=4.4]}
+    \toprule
+                            & \multicolumn{2}{c}{$E_0$ (MeV)}       & \multicolumn{2}{c}{Predicted $E_0$ (MeV)}\\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    Label                   & {K}               & {D}               & {K}                & {D}\\
+    \midrule
+    Very Coarse             & 495.92(08)        & 1887.3(51)        & 495.92(08)         & 1887.3(51)\\
+    Coarse                  & 528.28(15)        & 1893.0(15)        & 528.31(25)         & 1892.8(15)\\
+    Fine                    & 530.16(24)        & 1889.3(11)        & 530.13(24)         & 1889.4(11)\\
+    Chiral/Continuum limit  & {-}               & {-}               & 494.5(11)          & 1874.6(88)\\
+    \bottomrule
+    \end{tabular}
+    \caption{Comparison of observed and predicted mass values, including the extrapolated chiral/continuum limit values.\label{table:extrapolated_mass}}
+\end{table}
+
+TODO: Partial decay widths
 
 \section{Conclusion}
-TODO: Conclusion
+\subsection{Results}
+This project has been primarily focussed on data analysis. The first part was important as a first step to check that data was in fact of the form that we expected. Indeed we found that for a specific set of HISQ parameters, $m^\mathrm{eff}_{D^0}\approx \SI{1900}{MeV}$. This approximation only involved fitting the first (i.e.\ ground state) exponential and no oscillatory terms, but still gave a result within around \SI{5}{\%} of what was expected.
+
+The second part constituted the majority of the effort of the project. Here, 3 datasets with varying light quark mass and lattice spacing were analysed using an existing tool. This gave far more precise values for both the mass and amplitudes of the mesons, presented in Table~\ref{table:fitResults}. Again we saw that the meson masses were consistent with expected results, except with this data we were also able to notice the variation with respect to the HISQ parameters.
+
+Finally, with a selection of meson masses, it was possible to extrapolate to the chiral/continuum limit. The aim here was to find physical meson masses and partial decay widths. Table~\ref{table:extrapolated_mass} shows the extrapolated masses, which were within $3\sigma$ of the literature values. TODO: Partial decay widths
+
+\subsection{Further Work}
+This project followed existing techniques in lattice NRQCD so the next steps have already been explored well. The key advances to make would likely include adding more datasets. That is, a larger variety of light quark masses, and lattice spacings. By increasing the number of datasets analysed it would become viable to fit more parameters to Equation~\ref{eq:extrapolate}. This could give a tighter fit and thus reduce the statistical error on the final results. With careful enough analysis it is possible to also calculate masses, amplitudes, and decay widths for excited states. This expansion in scope can be seen as a subset of the analysis performed in \cite{chakraborty2021improved}.
+
+Alternatively, similar analysis could be carried out on heavier mesons e.g.\ $b\overline{b}$ bottomonium mesons, such as that carried out in~\cite{parrott2020towards}. 
+TODO: Slightly expand further work?
 
 \printbibliography{}
 
