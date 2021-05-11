@@ -7,15 +7,15 @@
 {../PartIIIProject/fitter/images_separate/MeV/2pt_hisq_very-coarse_D_Gold_K_1000conf/}
 {./images/}}
 
-\title{Tuning NRQCD b-quarks for Bottomonium \\ Spectroscopy Using Lattice QCD}
+\title{Obtaining $K$ and $D$ meson properties from lattice QCD}
 \author{Oscar Simpson \\ Supervisor: Dr.\ B.\ Chakraborty}
-\date{April 2021}
+\date{May 2021}
 
 \begin{document}
 \maketitle
 \begin{abstract}
-    Quantum Chromodynamics (QCD) is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Bottomonium mesons can be studied using Non-Relativistic QCD (NRQCD) as the b-quarks are much heavier in mass compared to the lighter quarks and need super fine lattices to simulate them relativistically which are not easily available. This project will involve modifying an existing NRQCD codebase to support an anisotropic lattice, with finer graining in the time component. The b-quark mass $m_b$ will be tuned, along with the degree of lattice anisotropy, in order to produce spectra for both vector and scalar $B$-mesons. These will be compared using established lattice QCD statistical techniques (\code{lsqfit} and \code{corrfitter}) with existing spectra. (TODO:\@ Correct this \em no longer studying anisotropy, nor modifying code.)
-\end{abstract}
+Quantum Chromodynamics (QCD) is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Throughout, a Highly Improved Stagged Quark (HISQ) action is used. From statistical ensembles of 2-point correlators we are able to extract properties of particles such as the mass and partial decay width of mesons, using the well-known \code{corrfitter} and \code{lsqfit} Python packages\cite{lepage2020corrfitter, lepage2020lsqfit}. These properties depend both with a lattice discretisation error, and with the (unphysical) light quark mass of the HISQ action. Extrapolation to the chiral/contiuum limit is also performed in order to obtain properties that are physical. In particular, these techniques are well suited to work with stranged and charmed mesons on a $N_f = 2 + 1 + 1$ quark sea. The mass of mesons calculated here $TODO$ is consistent with results in literature.
+\end{abstract} 
 
 \tableofcontents
 \pagebreak
@@ -59,47 +59,50 @@ We define the quark fields\cite{2015Colquhoun} $\psi(x)$ only on lattice points 
 
 We hope that by using this lattice model of QCD, we can produce sensible results in the limit of a short lattice spacing. Unfortunately, when the computations are carried out there are a lot of discretisation errors\cite{2009LatticeDiscretization}. By a careful choice of discrete derivative, we can remove $\order{a}$ error terms. The $\order{a^2}$ error terms can also be removed by adding and subtracting appropriate counterterms\cite{1983ImproveLatticeAction}. This leaves us with a discretised theory with errors in $\order{a^3}$, which we hope is small enough that our extrapolation to $a \rightarrow 0$ is accurate.
 
-\subsection{NRQCD}
-In this project we are looking specifically at bottomonium mesons. In a relativistic approach, there are certain constraints placed upon both our lattice spacing and our lattice size. These constraints require a lattice with lattice spacing equal or smaller than \SI{0.45}{fm} to compute b-quarks relativistically\cite{2015Colquhoun}. In practice sometimes these fine lattices are not easily available, or even if they are the computation becomes very expensive. Instead we take a non-relativistic approach. This NRCQD method is justified by the relatively large mass of the b-quark: we can expand our action in factors of $1/m_b$ and neglect the appropriately higher order terms.
-
-This is the first step in the Foldy-Wouthuysen-Tani (FWT) transformation. Carrying on with the remaining steps gives us our lattice NRQCD, which to first order in $v^2$ (the first term in the non-relativistic expansion) is the Schrödinger Lagrangian:
+\subsection{HISQ Action}
 
 \begin{equation}
-    \label{eq:NRQCDS0}
-    \mathcal{L}_0 = \psi^\dagger(x)\left(i D_t + \frac{\vb{D}^2}{2m_b}\right)\psi(x),
+    M^{-1} = \frac{-i\gamma_\mu \sin(ap_\mu)/a+m}{\sum_{\mu=0}^3 \sin^2(ap_\mu)/a^2 + m^2}
 \end{equation}
-where $D_t$ is the time component of the gauge invariant derivative, and $\vb{D}$ is the spatial 3-vector component. The expansion to $v^4$ is required for an interesting theory, and involves terms that interact\cite{2010Meinel} with the chromoelectric $E_j = F_{oj}$ and chromomagnetic $B_j = -\frac{1}{2}\epsilon_{jkl}F^{kl}$ fields, which is exact to $\order{1/m_b^3}$. In this project, we will in fact use an action which is expanded to $\order{v^6}$.
-TODO: This section needs updating, we are not only looking at bottomonium
+TODO: this
 
-\subsection{Relating lattice and physical}
+\subsection{Correlators}
+TODO: this, including moving 2-pt correlator eq from prelimn to here
+
+\subsection{Relating Lattice and Physical}
 TODO: This is for chiral-continuum limit etc.
 Any mass specified in lattice units can be converted into physical units by $m = (\hbar c) m^\mathrm{lattice} / a$.
 
-\section{Statistical methods and Data}
-\subsection{Jacknife averaging}
+\section{Statistical Methods and Data}
+\subsection{Jacknife Averaging}
 Given a large sample of data with completely unknown errors, we often want to compute unbiased estimators for statistical parameters. One such way is to use Jacknife averaging\cite{efron1982jackknife}. Consider a sample of $n$ i.i.d.\ values $x_i \sim F$. Construct $n$ mean estimates $\overline{x}_i = \sum_{j\neq i} \frac{x_j}{n-1}$. The average of these sample means $\overline{x} = \sum_i\frac{\overline{x}_i}{n}$ is precisely the mean of the whole sample, and the error on this estimate is given by the variance $\text{Var}[\overline{x}] = \frac{n-1}{n}\sum_i{(\overline{x}_i - \overline{x})}^2$ of the distribution of $\overline{x}_i$. That is, we have an unbiased estimator for the mean and standard defiation of $F$ given by $\overline{x} \pm \sqrt{\text{Var}[\overline{x}]}$. In fact by replacing the means $\overline{x}_i$ above by (almost) any estimator $\overline{\theta}_i$, it is possible to construct an new estimator, using a slightly more laborious method, which has an asymptotically smaller bias\cite{mcintosh2016jackknife}.
 
-\subsection{Bayesian analysis}
+\subsection{$\chi^2$ Fitting}
+
+\subsection{Bayesian Analysis}
 Using the \code{corrfitter}\cite{lepage2020corrfitter} Python package, it is possible to perform a least-squares regression on our 2-point correlator data. For a given set of priors and a data set, the least-squares regression gives best-fit values for parameters of choice. In the context of this project, we are interested in fitting the amplitudes $a_n$, ${a_o}_n$ and the $\log$ of the energy differences, $\log(\dd E_n)$, $\log({\dd E_o}_n)$. In particular, the log of energy differences allows us to implicitly force the energy levels of the fit to strictly increase.
 
 For a fit of this type, we expect a good quality fit to have $\chi^2/\mathrm{dof} \approx 1$. Values much larger than this are a poor fit, and values closer to $0$ could indicate overfitting. There are other measures of goodness-of-fit such as the Gaussian Bayes Factor and the Q value, however their use is unnecessary here and we will continue only using the $\chi^2$ measure.
 
 \subsection{Data}
-Data for this whole project has been provided by Dr.\ B.\ Chakraborty. This data has been produced by isotropic lattice NRQCD on a variety of lattice spacings, described in Table~\ref{table:latticeSpacing}. Each correlator sample corresponds to a randomised gauge configuration of gluon fields.
+Data for this whole project has been provided by Dr.\ B.\ Chakraborty. This data has been produced by using relativistic HISQ action for both valuence and sea quarks on publicly available gauge configurations generated by MILC collaboration given in Table~\ref{table:latticeSpacing}. The configurations have sea quark effects from up/down (light), strange, and charm quarks.
 
 By using a finite lattice we have discretisation errors (discussed in Section~\ref{section:lattice}), which we can only eliminate by extrapolating from multiple datasets, to the contiuum limit. Additionally, for computational reasons it is not possible to use physical light quark masses for all lattice sizes. As a result, we must also extrapolate to the chiral limit, where $m_l=0$, which is close to the physical value of $m_l \approx 0.02m_s$.
 
 \begin{table}
 \centering
-\begin{tabular}{l S[table-format=1.5] S[table-format=2.0] S[table-format=1.3]}
-    Label       & {Spacing $a$ (\si{fm})}   & {Lattice size (time)} & {$m_l / m_s$}\\
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l S[table-format=1.5] r S[table-format=1.3] r S[table-format=1.1] S[table-format=1.4(2)] S[table-format=1.5] S[table-format=1.4] S[table-format=1.3] S[table-format=1.4] S[table-format=1.4] S[table-format=1.5]}
+    Label       & {$a$ (\si{fm})}   & {$N_t \cross N_x^3$}  & {$m_l / m_s$}  & {$n_\mathrm{cfg} \cross n_\mathrm{c}$}    & {$\beta$} & {$w_0/a$} & {$am^\mathrm{sea/val}_l$} & {$am^\mathrm{sea}_s$}  & {$am^\mathrm{sea}_c$}    & {$am^\mathrm{val}_s$}  & {$am^\mathrm{val}_c$} & {$Z_\mathrm{disc}$} \\
     \midrule 
-    Very Coarse & 0.1509                    & 48                    & 0.036\\
-    Coarse      & 0.12404                   & 64                    & 0.2\\
-    Fine        & 0.09023                   & 96                    & 0.2\\
-\end{tabular}
-\caption{Parameters of the data used in the main part of this project. Corresponding to sets 1, 5, 6 from table I\cite{chakraborty2021improved} respectively. The lattice size is the number of discreet time slices that are recorded.\label{table:latticeSpacing}}
+    Very Coarse & 0.1509    & $48\cross32^3$    & 0.036 & $998\cross16$     & 5.8   & 1.1367(5)     & 0.00235   & 0.0647    & 0.831 & 0.0678    & 0.8605    & 0.99197\\
+    Coarse      & 0.12404   & $64\cross24^3$    & 0.2   & $1053\cross16$    & 6.0   & 1.3826(11)    & 0.0102    & 0.0509    & 0.635 & 0.0656    & 0.664     & 0.99683\\
+    Fine        & 0.09023   & $96\cross32^3$    & 0.2   & $499\cross16$     & 6.3   & 1.9006(20)    & 0.0074    & 0.037     & 0.440 & 0.0376    & 0.449     & 0.99892\\
+\end{tabular}}
+\caption{Parameters of the data used in the main part of this project. Corresponding to sets 1, 5, 6 from table I\cite{chakraborty2021improved} respectively. TODO: update caption\label{table:latticeSpacing}}
 \end{table}
+
+TODO: Describe how project has evolved into a data analysis project.
 
 
 \section{Preliminary study}
@@ -110,7 +113,9 @@ Using Jacknife averaging, an existing dataset\cite{data:prelim_meff} was analyse
     \label{eq:2ptCorrelator}
     G(t) = \sum_n a_n^2 (e^{-E_n t} + e^{-E_n(T-t)}) + {(-1)}^t \sum_n {a_o}_n^2 (e^{-{E_o}_n t} + e^{{-E_o}_n (T-t)}),
 \end{equation}
-where $E_n$ gives the energy (or mass) of the $n^{th}$ excited state, and $a_n$ gives its amplitude. In this expression, the reflected $T-t$ terms are due to the periodic boundary conditions, and the ${E_o}_n$ terms are oscillatory contributions due to the fermion doubling in the staggered quark analysis. 
+where $E_n$ gives the energy of the $n^{th}$ excited state, and $a_n$ gives its amplitude. In this expression, the reflected $T-t$ terms are due to the periodic boundary conditions, and the ${E_o}_n$ terms are oscillatory contributions due to the opposite parity state in the staggered quark analysis.
+
+TODO: Switch to the new datafile for this section
 
 \begin{figure}[!h]
     \centering
@@ -194,15 +199,15 @@ Taking into account the values of parameters for which all the datasets had reli
 
 \begin{table}
 \centering
-\begin{tabular}{l S[table-format=1.2] S[table-format=1.3] S[table-format=3.5] S[table-format=4.4] S[table-format=3.7,retain-explicit-plus] S[table-format=3.7,retain-explicit-plus]}
+\begin{tabular}{l S[table-format=1.2] S[table-format=1.3] S[table-format=3.2(2)] S[table-format=4.1(2)] S[table-format=1.5(2)] S[table-format=1.4(2)]}
     \toprule
-                &                   &                   & \multicolumn{2}{c}{$E_0$ (MeV)}       & \multicolumn{2}{c}{$a_0$}\\
+                &                   &                   & \multicolumn{2}{c}{$E_0$ (MeV)}       & \multicolumn{2}{c}{$|a_0|$}\\
     \cmidrule(lr){4-5}\cmidrule(lr){6-7}
     Label       & {$a$ (\si{fm})}   & {$m_l / m_s$}     & {K}               & {D}               & {K}                & {D}\\
     \midrule
-    Very Coarse & 0.15              & 0.036             & 495.92(08)        & 1887.3(51)        & -0.28101(11)       & -0.2286(65)\\
-    Coarse      & 0.12              & 0.2               & 528.28(15)        & 1893.0(15)        & +0.60853(37)       & +0.1880(12)\\
-    Fine        & 0.09              & 0.2               & 530.16(24)        & 1889.3(11)        & +0.13978(12)       & +0.1242(07)\\
+    Very Coarse & 0.15              & 0.036             & 495.92(08)        & 1887.3(51)        & 0.28101(11)        & 0.2286(65)\\
+    Coarse      & 0.12              & 0.2               & 528.28(15)        & 1893.0(15)        & 0.60853(37)        & 0.1880(12)\\
+    Fine        & 0.09              & 0.2               & 530.16(24)        & 1889.3(11)        & 0.13978(12)        & 0.1242(07)\\
     \bottomrule
 \end{tabular}
 \caption{Results from fitting all datasets. $t_\mathrm{min}=6$ for $D$ mesons, and $n=4$ for all results. Uncertainties given in parentheses are statistical.\label{table:fitResults}}
@@ -219,7 +224,7 @@ When we perform a $\chi^2$ fit to these values\footnote{The priors used for this
 
 \begin{table}
     \centering
-    \begin{tabular}{l S[table-format=3.5] S[table-format=4.4] S[table-format=3.5] S[table-format=4.4]}
+    \begin{tabular}{l S[table-format=3.2(2)] S[table-format=4.1(2)] S[table-format=3.2(2)] S[table-format=4.1(2)]}
     \toprule
                             & \multicolumn{2}{c}{$E_0$ (MeV)}       & \multicolumn{2}{c}{Predicted $E_0$ (MeV)}\\
     \cmidrule(lr){2-3}\cmidrule(lr){4-5}
