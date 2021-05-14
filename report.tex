@@ -14,9 +14,12 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Quantum Chromodynamics (QCD) is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Throughout, a Highly Improved Stagged Quark (HISQ) action is used. From statistical ensembles of 2-point correlators we are able to extract properties of particles such as the mass and partial decay width of mesons, using the well-known \code{corrfitter} and \code{lsqfit} Python packages\cite{lepage2020corrfitter, lepage2020lsqfit}. These properties depend both with a lattice discretisation error, and with the (unphysical) light quark mass of the HISQ action. Extrapolation to the chiral/contiuum limit is also performed in order to obtain properties that are physical. In particular, these techniques are well suited to work with stranged and charmed mesons on a $N_f = 2 + 1 + 1$ quark sea. The mass of mesons calculated here $TODO$ is consistent with results in literature.
+Quantum Chromodynamics (QCD) describes the strong force and is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Throughout this project, a Highly Improved Stagged Quark (HISQ) action is used. From statistical ensembles of 2-point correlators we are able to extract properties of particles such as the mass and partial decay width of mesons, using the well-known \code{corrfitter} and \code{lsqfit} Python packages. These properties depend both on a lattice discretisation error, and on the (unphysical) light quark mass of the HISQ action. Extrapolation to the chiral/contiuum limit is also performed in order to obtain properties that are physical. In particular, these techniques are well suited to work with stranged and charmed mesons on a $N_f = 2 + 1 + 1$ quark sea. The mass of mesons calculated here $TODO$ is consistent with results in literature.
 \end{abstract} 
 
+\textbf{Declaration:} Except where specific reference is made to the work of others, this work is original and has not been already submitted either wholly or in part to satisfy any degree requirement at this or any other university.
+
+\pagebreak
 \tableofcontents
 \pagebreak
 
@@ -24,7 +27,7 @@ Quantum Chromodynamics (QCD) is an integral component of the Standard Model (SM)
 \subsection{Standard Model}
 The Standard Model is currently the most accurate model of particle physics. It describes fermions: quarks ($q$), leptons ($l$), and their antiparticles, denoted with an overline ($\overline{q}$). It also describes the gauge bosons which mediate the strong, weak, and electromagnetic (EM) fields. 
 
-There are 6 flavours of quarks, in 3 different generations. Quarks are coupled to the strong, weak, and EM interactions. The leptons, also in 3 generations, are coupled to the EM field if they are charged, and to the weak force. This project is to study the spectra of bottomonium mesons. These are hadrons composed of a bottom quark and any antiquark (or an antiparticle of this). The weak and EM interactions are completely neglected, leaving only the strong interaction which is governed by the theory of Quantum Chromodynamics (QCD).
+There are 6 flavours of quarks, in 3 different generations. Quarks are coupled to the strong, weak, and EM interactions. The leptons, also in 3 generations, are coupled to the EM field if they are charged, and to the weak force. In this project, we are extracting the mass and decay widths of $K^0=s \overline{d}$ and $D^0= c \overline{u}$ neutral mesons\footnote{Or equivalently, their antiparticles.}. Due to the very short range being studied, with a total area of interest having side length $L \approx \SI{5}{fm}$, the strong force completely dominates. As a result, the weak and EM interactions can be completely neglected in the action, leaving only the strong interaction which is governed by the theory of Quantum Chromodynamics (QCD).
 
 \subsection{Quantum Chromodynamics}
 QCD is a $SU(3)$ gauge field theory governing the interactions of quarks and gluons. As quarks are fermions, they are described by a Dirac lagrangian coupled to an external gauge field. For a quark field annihilation operator $\psi_f$, Dirac field creation operator $\overline{\psi}=\psi^\dagger_f\gamma^0$ with quark flavour $f$, we have\cite{2010QFT, 2015Colquhoun}:
@@ -32,7 +35,7 @@ QCD is a $SU(3)$ gauge field theory governing the interactions of quarks and glu
     \label{eq:Dirac}
     \mathcal{L} = \sum_f \psi^\dagger_f (i\slashed{D}-m_f) \psi_f - \frac{1}{4}F^a_{\mu\nu} F^{\mu\nu}_a
 \end{equation}
-In this Lagrangian we have a gauge covariant derivative $\slashed{D} = \slashed{\partial} + i g_s \slashed{A}^a \lambda_a / 2$. Here and in the rest of this section, we leave the indices referring to colour implicit. However to be clear, the quarks carry a conserved \emph{colour charge} analogous to the electric charge in QED\@. There are three separate \emph{colours} which are often called \emph{red}, \emph{green}, and \emph{blue}\footnote{Although, the choice of basis is arbitrary and can be transformed by any matrix $U \in SU(3)$.}. The colour of a quark is represented by a colour spinor, which is the space acted on by the $\lambda_a$. It is these indices, referring to the matrix multiplication, that are omitted.
+In this Lagrangian we have a gauge covariant derivative $\slashed{D} = \slashed{\partial} + i g_s \slashed{A}^a \lambda_a / 2$\footnote{Using Feynman slash notation so that for any 4-vector $\slashed{B}=B_\mu \gamma^\mu$, where the $\gamma$ form a representation of the spinor group that acts on fermions.}. Here and in the rest of this section, we leave the indices referring to colour implicit. However to be clear, the quarks carry a conserved \emph{colour charge} analogous to the electric charge in QED\@. There are three separate \emph{colours} which are often called \emph{red}, \emph{green}, and \emph{blue}\footnote{Although, the choice of basis is arbitrary and can be transformed by any matrix $U \in SU(3)$.}. The colour of a quark is represented by a colour spinor, which is the space acted on by the matrix $\lambda_a$. It is these indices, referring to the matrix multiplication, that are omitted.
 
 The other important quantity is the gluon field strength tensor:
 \begin{equation}
@@ -53,39 +56,47 @@ Lattice QCD is a method to solve QCD systems by placing the fields on a spacetim
 \end{alignat}
 where $\mathcal{Z}$ is the partition function. This is named in analogy with the statistical partition function, which can be obtained by performing a Wick rotation $t \mapsto it$.
 
-Clearly it is not usually feasible to integrate over an infinite-dimensional space of functions, so we use a technique called regularisation. To do this we replace the $4D$ continuum integral by a spacetime lattice. Often an isotropic lattice is chosen (with lattice spacing $a$), however the main aim of this project is to use an anisotropic lattice the spatial and temporal lattice spacings differ.
+Clearly it is not usually feasible to integrate over an infinite-dimensional space of functions, so we use a technique called regularisation. To do this we replace the $4D$ continuum integral by a spacetime lattice. Often an isotropic lattice is chosen (with lattice spacing $a$), which is the case in this project. 
 
 We define the quark fields\cite{2015Colquhoun} $\psi(x)$ only on lattice points $x_\mu$, and the gluon fields $U_{\hat{\delta}}(x) = U(x, x + \hat{\delta})$ defined on the links between the lattice points. The links are specified as written, by a point $x^\mu$ and a unit vector $\hat{\delta}^\mu$ specifying the direction along the lattice. The conjugate field $U^\dagger_{\hat{\delta}}(x) = U(x + \hat{\delta}, x)$ gives the link from $x+\hat{\delta}$ back to $x$. Once we have our particle fields, it is possible to replace derivatives with differences in fields at adjacent lattice sites. One can then construct an appropriate gauge invariant action, called the Wilson action.
 
-We hope that by using this lattice model of QCD, we can produce sensible results in the limit of a short lattice spacing. Unfortunately, when the computations are carried out there are a lot of discretisation errors\cite{2009LatticeDiscretization}. By a careful choice of discrete derivative, we can remove $\order{a}$ error terms. The $\order{a^2}$ error terms can also be removed by adding and subtracting appropriate counterterms\cite{1983ImproveLatticeAction}. This leaves us with a discretised theory with errors in $\order{a^3}$, which we hope is small enough that our extrapolation to $a \rightarrow 0$ is accurate.
+We hope that by using this lattice model of QCD, we can produce sensible results in the limit of a short lattice spacing. Unfortunately, when the computations are carried out there are a lot of discretisation errors\cite{2009LatticeDiscretization}. By a careful choice of discrete derivative and by using the Highly Improved Staggered Quark (HISQ) action, we can remove $\order{a}$ error terms. This leaves us with a discretised theory with errors in $\order{a^2}$, which we hope is small enough that our extrapolation to $a \rightarrow 0$ is accurate.
 
-\subsection{HISQ Action}
+\subsection{Fermion Doubling}
+In Equation~\ref{eq:Dirac}, the term $M = i\slashed{D} -m_f$ can be considered the inverse quark propagator, and many important calculations depend on the propagator $M^{-1}$. When fermions are placed on a finite lattice, this inverse propagator takes the form in Equation~\ref{eq:latticeprop}\cite{2016Chakraborty}. This is periodic in $p_\mu$, which gives rise to the phenomenon of fermion doubling.
+
+In each of the 3+1 dimensions there is an extra \emph{taste} of fermion at the end of the Brillouin zone. This corresponds to a total of $16=2^4$ tastes. The physical taste is the fermion with the smallest $p$, and is thus the ground state. Lattice operators can be constructed to interact with any of these tastes. For example, Goldstone tastes use a local $\gamma^5=i \gamma^0\gamma^1\gamma^2\gamma^3$ operator. Alternatively, non-Goldstone fermions can be chosen by using a non-local, or point-split, $\gamma^5$ operator. In any case, the splitting between tastes is a function of the lattice spacing, and so in the continuum limit the physical property is restored.
 
 \begin{equation}
-    M^{-1} = \frac{-i\gamma_\mu \sin(ap_\mu)/a+m}{\sum_{\mu=0}^3 \sin^2(ap_\mu)/a^2 + m^2}
+    \label{eq:latticeprop}
+    M^{-1} = \frac{-i\gamma^\mu \sin(ap_\mu)/a+m}{\sin(ap^\mu)\sin(ap_\mu)/a^2 + m^2}
 \end{equation}
-TODO: this
+
+\subsection{HISQ Action}
+It can be beneficial to reduce the number (or impact) of these extra fermion tastes. Two of these methods are outlined here. The first uses Wilson quarks\cite{2016Chakraborty}, where an extra term is introduced into the Lagrangian, such that the unphysical tastes are given non-zero mass in the continuum limit, which decouples them from the theory. Unfortunately, this explicitly breaks chiral symmetry.
+
+The alternative, and the one used to generate all the data used for this project, is the Highly Improved Staggered Quark (HISQ) action. Here, Highly Improved refers to the removal of $\order{a}$ discretisation terms. By spin-diagonalising the naive fermion action, it is possible to reduce the number of doublers to 4, which is more computationaly efficient.
 
 \subsection{Correlators}
-TODO: this, including moving 2-pt correlator eq from prelimn to here
+All the results in this project come directly from the 2-point correlator (Equation~\ref{eq:2ptCorrelatorTheory}) where $\overline{\phi}$ is the field creation operator for the meson of interest. Our state $\ket*{0}$ is populated with a randomised background colour configuration.
 
-\subsection{Relating Lattice and Physical}
-TODO: This is for chiral-continuum limit etc.
-Any mass specified in lattice units can be converted into physical units by $m = (\hbar c) m^\mathrm{lattice} / a$.
+\begin{equation}
+    \label{eq:2ptCorrelatorTheory}
+    G^{2pt}(x_0, x) = \bra*{0}\phi(x)\overline{\phi(x_0)}\ket*{0}
+\end{equation}
+
+Naively, we expect\cite{2016Chakraborty} to see a 2-point correlator $G^{2pt}(\overrightarrow{p}; t) = \sum_n a_n^2 \exp(-E_n t)$. However due to the periodic boundary conditions, there is an additional term where $t \rightarrow T-t$ for T the time length of the lattice. A further complication comes from oscillation terms. Recall that we are using a staggered quark action, where we still have 4 fermion doublers. In each of the 3+1 dimensions, the formalism gives an additional term proportional to ${(-1)}^{\hat{\delta}^\mu}$. For the 3 spatial dimensions, this is averaged out over adjacent sites, but in the time dimension this does not happen so we are left with an oscillatory term. This gives our final expression for the 2-point correlator,
+
+\begin{equation}
+    \label{eq:2ptCorrelator}
+    G(t) = \sum_n a_n^2 (e^{-E_n t} + e^{-E_n(T-t)}) + {(-1)}^t \sum_n {a_o}_n^2 (e^{-{E_o}_n t} + e^{{-E_o}_n (T-t)}).
+\end{equation}
+
+One thing to note is that these oscillatory terms are due to opposite parity states. That is, if we are studying a $K^0=d \overline{s}$, the additional term comes from the $\overline{K^0}=s\overline{d}$ state\footnote{This is the only instance where we are careful to distinguish a neutral meson from its antiparticle.}. As a result this term does not appear for a meson composed of exactly one type of quark, eg. $\pi^0 = u\overline{u}$ or $d\overline{d}$.
 
 \section{Statistical Methods and Data}
-\subsection{Jacknife Averaging}
-Given a large sample of data with completely unknown errors, we often want to compute unbiased estimators for statistical parameters. One such way is to use Jacknife averaging\cite{efron1982jackknife}. Consider a sample of $n$ i.i.d.\ values $x_i \sim F$. Construct $n$ mean estimates $\overline{x}_i = \sum_{j\neq i} \frac{x_j}{n-1}$. The average of these sample means $\overline{x} = \sum_i\frac{\overline{x}_i}{n}$ is precisely the mean of the whole sample, and the error on this estimate is given by the variance $\text{Var}[\overline{x}] = \frac{n-1}{n}\sum_i{(\overline{x}_i - \overline{x})}^2$ of the distribution of $\overline{x}_i$. That is, we have an unbiased estimator for the mean and standard defiation of $F$ given by $\overline{x} \pm \sqrt{\text{Var}[\overline{x}]}$. In fact by replacing the means $\overline{x}_i$ above by (almost) any estimator $\overline{\theta}_i$, it is possible to construct an new estimator, using a slightly more laborious method, which has an asymptotically smaller bias\cite{mcintosh2016jackknife}.
-
-\subsection{$\chi^2$ Fitting}
-
-\subsection{Bayesian Analysis}
-Using the \code{corrfitter}\cite{lepage2020corrfitter} Python package, it is possible to perform a least-squares regression on our 2-point correlator data. For a given set of priors and a data set, the least-squares regression gives best-fit values for parameters of choice. In the context of this project, we are interested in fitting the amplitudes $a_n$, ${a_o}_n$ and the $\log$ of the energy differences, $\log(\dd E_n)$, $\log({\dd E_o}_n)$. In particular, the log of energy differences allows us to implicitly force the energy levels of the fit to strictly increase.
-
-For a fit of this type, we expect a good quality fit to have $\chi^2/\mathrm{dof} \approx 1$. Values much larger than this are a poor fit, and values closer to $0$ could indicate overfitting. There are other measures of goodness-of-fit such as the Gaussian Bayes Factor and the Q value, however their use is unnecessary here and we will continue only using the $\chi^2$ measure.
-
 \subsection{Data}
-Data for this whole project has been provided by Dr.\ B.\ Chakraborty. This data has been produced by using relativistic HISQ action for both valuence and sea quarks on publicly available gauge configurations generated by MILC collaboration given in Table~\ref{table:latticeSpacing}. The configurations have sea quark effects from up/down (light), strange, and charm quarks.
+The data for this project has been produced by using relativistic HISQ action for both valuence and sea quarks on publicly available gauge configurations generated by MILC collaboration\cite{bazavov2013lattice}. The configurations have sea quark effects from up/down (light), strange, and charm quarks ($N_f = 2+1+1$). The specific datasets that have been used are given in Table~\ref{table:latticeSpacing}.
 
 By using a finite lattice we have discretisation errors (discussed in Section~\ref{section:lattice}), which we can only eliminate by extrapolating from multiple datasets, to the contiuum limit. Additionally, for computational reasons it is not possible to use physical light quark masses for all lattice sizes. As a result, we must also extrapolate to the chiral limit, where $m_l=0$, which is close to the physical value of $m_l \approx 0.02m_s$.
 
@@ -99,55 +110,103 @@ By using a finite lattice we have discretisation errors (discussed in Section~\r
     Coarse      & 0.12404   & $64\cross24^3$    & 0.2   & $1053\cross16$    & 6.0   & 1.3826(11)    & 0.0102    & 0.0509    & 0.635 & 0.0656    & 0.664     & 0.99683\\
     Fine        & 0.09023   & $96\cross32^3$    & 0.2   & $499\cross16$     & 6.3   & 1.9006(20)    & 0.0074    & 0.037     & 0.440 & 0.0376    & 0.449     & 0.99892\\
 \end{tabular}}
-\caption{Parameters of the data used in the main part of this project. Corresponding to sets 1, 5, 6 from table I\cite{chakraborty2021improved} respectively. TODO: update caption\label{table:latticeSpacing}}
+\caption{Parameters of various datasets used throughout this project. We take the Wilson flow parameter $w_0=\SI{0.1715(9)}{fm}$\cite{dowdall2013v}. Valence quarks are directly interacted with, such as being the components of mesons that we are studying. The sea quarks are virtual particles that create the background for each configuration.\label{table:latticeSpacing}}
 \end{table}
 
-TODO: Describe how project has evolved into a data analysis project.
+\subsection{Jacknife Averaging}
+Given a large sample of data with completely unknown errors, we often want to compute unbiased estimators for statistical parameters. One such way is to use Jacknife averaging\cite{efron1982jackknife}. Consider a sample of $n$ i.i.d.\ values $x_i \sim F$. Construct $n$ mean estimates $\overline{x}_i = \sum_{j\neq i} \frac{x_j}{n-1}$. The average of these sample means $\overline{x} = \sum_i\frac{\overline{x}_i}{n}$ is precisely the mean of the whole sample, and the error on this estimate is given by the variance $\text{Var}[\overline{x}] = \frac{n-1}{n}\sum_i{(\overline{x}_i - \overline{x})}^2$ of the distribution of $\overline{x}_i$. That is, we have an unbiased estimator for the mean and standard defiation of $F$ given by $\overline{x} \pm \sqrt{\text{Var}[\overline{x}]}$. In fact by replacing the means $\overline{x}_i$ above by (almost) any estimator $\overline{\theta}_i$, it is possible to construct an new estimator, using a slightly more laborious method, which has an asymptotically smaller bias\cite{mcintosh2016jackknife}.
 
+\subsection{$\chi^2$ Fitting}
+A common technique for fitting a model to data is to minimise the statistic $\chi^2 = \sum_n (y_n - f(x_n))^2 / \sigma_n$, where $y_n$ is the observed value with error $\sigma_n$ at a point $x_n$, and $f$ depends on the model parameters. Varying the parameters and then recomputing the $\chi^2$ statistic allows us to find the maximum-likelihood values. This is the method in the Python software packages \code{lsqfit} and by extension \code{corrfitter}\cite{lepage2001constrained}\footnote{Technically this works on a similar but more accurate statistic, where the errors are given as a matrix, due to the correlated nature of errors coming from the Jacknife average.}. The procedure is performed until the statistic reaches a stable minimum.
+
+For a general $\chi^2$ fit, there are $N$ data points and $P$ parameters, where we take the degrees of freedom\footnote{For sufficiently well behaved function $f$, see \cite{andrae2010and}.} $K=N-P$. The statistic should follow a $\chi_K^2$ distribution. As a result, the reduced statistic $\chi^2 / K \lesssim 1$ indicates a good quality fit. It is also import to take care with small reduced $\chi^2$ results, as extremely small values might be indicative of an overfit.
+
+\subsection{Bayesian Analysis}
+Using the \code{corrfitter} Python package, we perform a least-squares regression on our 2-point correlator (Equation~\ref{eq:2ptCorrelator}) data (Jacknife averages of results characterised in Table\ref{table:latticeSpacing}). For a given set of priors and a data set, the least-squares regression gives best-fit values for parameters of choice. In the context of this project, we are interested in fitting the amplitudes $a_n$, ${a_o}_n$ and the $\log$ of the energy differences, $\log(\dd E_n)$, $\log({\dd E_o}_n)$. In particular, the log of energy differences allows us to implicitly force the energy levels of the fit to strictly increase.
+
+\subsection{Project Development}
+This project originally had the title ``Tuning NRQCD b-quarks for Bottomonium spectroscopy using lattice QCD''. For this project, I would have taken existing code to generate correlator data using lattice Non-Relativistic QCD (NRQCD) and modified it. To use NRQCD for b-quark mesons, the modification would have been to use \emph{an}isotropic lattices. In particular, using a finer lattice spacing in the time dimension would have helped to keep discretisation errors small, while keeping computations relatively fast by leaving the spatial lattice spacing at a coarser scale.
+
+Due to the time constraints of a project of this nature, it was decided that it was not possible to tackle such an intricate problem. There was instead a pivot towards the final title of this project. This is much more focussed on the data-analysis side, exploring modern techniques for obtaining masses and partial decay widths of lighter\footnote{Not containing $b$-quarks.} mesons.
 
 \section{Preliminary study}
 
-Using Jacknife averaging, an existing dataset\cite{data:prelim_meff} was analysed. This is a set of 2-point correlators for a $D-$meson ($c\overline{q}$). In this dataset there are $n=489$ gauge configurations, with $T=96$ time slices. The average over Jacknife averages is shown in Figure~\ref{fig:2ptCorrelator}. From\cite{2016Chakraborty} we know that these correlators are expected to follow the following relationship,
-
-\begin{equation}
-    \label{eq:2ptCorrelator}
-    G(t) = \sum_n a_n^2 (e^{-E_n t} + e^{-E_n(T-t)}) + {(-1)}^t \sum_n {a_o}_n^2 (e^{-{E_o}_n t} + e^{{-E_o}_n (T-t)}),
-\end{equation}
-where $E_n$ gives the energy of the $n^{th}$ excited state, and $a_n$ gives its amplitude. In this expression, the reflected $T-t$ terms are due to the periodic boundary conditions, and the ${E_o}_n$ terms are oscillatory contributions due to the opposite parity state in the staggered quark analysis.
-
-TODO: Switch to the new datafile for this section
+Using Jacknife averaging on the fine dataset (recall that these have $T=96$ time slices) was analysed. Here we have data for $K$ and $D$ mesons in the physical taste, and an additional non-Goldstone $D$ taste, which we expect to have a slightly higher mass. For the $D$ meson sets there are 489 gauge configurations, and 495 for the $K$ meson. 
 
 \begin{figure}[!h]
-    \centering
-    \includegraphics[width=\imgwidth]{correlation_2pt_hisq_msml5_fine_D_nongold_489conf.png}
-    \caption{Average 2 point correlator for $n=489$ gauge configurations on a fine lattice. Computed by using Jacknife averaging. Away from the endpoints correlator values are very small, which is consistent with our assumption that our exponentials decay sufficiently quickly.\label{fig:2ptCorrelator}}
+\makebox[\textwidth][c]{%
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{correlation_2pt_hisq_msml5_fine_D_gold_489conf.png}
+        \captionsetup{width=.9\linewidth}
+        \subcap{Average correlator for Goldstone $D$ meson on a fine lattice. In orange is the (statistical) relative error.\label{fig:prelimDGoldCorrelator}}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{meff_2pt_hisq_msml5_fine_D_gold_489conf.png}
+        \captionsetup{width=.9\linewidth}
+        \subcap{Estimate for $m_\text{eff}$ for Goldstone $D$ meson on a fine lattice. Only points between the green lines are included in the final average.\label{fig:prelimDGoldMeff}} 
+    \end{subfigure}
+}
 \end{figure}
 
-If we assume the oscillatory terms are small then one can look near the middle of the data (shown in Figure~\ref{fig:2ptCorrelator}). Here the only relevant term is the ground state ($a_0, E_0$). As a result, in this region we should be able to compute an estimate for the ground state effective mass, 
+\begin{figure}[!h]
+\makebox[\textwidth][c]{%
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{correlation_2pt_hisq_msml5_fine_K_zeromom_495conf.png}
+        \captionsetup{width=.9\linewidth}
+        \subcap{Average correlator for $K$ meson on a fine lattice.\label{fig:prelimKCorrelator}}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{meff_2pt_hisq_msml5_fine_K_zeromom_495conf.png}
+        \captionsetup{width=.8\linewidth}
+        \subcap{Estimate for $m_\text{eff}$ for $K$ meson on a fine lattice.\label{fig:prelimKMeff}} 
+    \end{subfigure}
+}
+\end{figure}
+
+If we assume the oscillatory terms are small then one can look near the middle of the data. Looking at Figures~\ref{fig:prelimDGoldCorrelator},~\ref{fig:prelimKCorrelator},~\ref{fig:prelimDNongoldCorrelator} it is clear to see that the correlators have in fact plateaud at this point. Here the only relevant term is the ground state ($a_0, E_0$) as all higher energy levels have decayed faster. As a result, in this region we should be able to compute an estimate for the ground state effective mass, 
 
 \begin{equation}
     \label{eq:meff}
     m_{\mathrm{eff}}(t) = \log(\frac{G(t)}{G(t+1)}).
 \end{equation}
 
-When actually computing this value, we must make sure that we do not go past halfway through the data, as the second half (with rising exponentials) will lead to a negative effective mass with the same magnitude. As shown in Figure~\ref{fig:2ptCorrelatorMeff}, for the provided (non-Gold D meson on a fine lattice), the effective mass is approximately $m_\text{eff} \approx 0.87 \approx \SI{1900}{MeV}$. To compute this value we took the average of the time-dependent values for time steps $t = 24 - 36$, where the data has clearly plateaued but still has small errors.
+When actually computing this value, we must make sure that we do not go past halfway through the data, as the second half (with rising exponentials) will lead to a negative effective mass albeit with the same magnitude. Additionally it is helpful to avoid the areas with larger errors. We can see that for both of the physical tastes, we have a good region where the effective mass has reached a plateau, and for the non-Goldstone $D$ meson the region is still not too bad. To find an estimate for the overall $m_\mathrm{eff}$ we average within this whole region, although the choices of endpoints are somewhat ad-hoc. It should be noted that for both of the $D$ meson tastes, there are sufficient oscillations that moving the ends of the region can cause either taste to appear more massive. It seems that the effective mass calculation is insuffient to distinguish the staggered quark tastes at the fine lattice spacing.
 
 \begin{figure}[!h]
-    \centering
-    \includegraphics[width=\imgwidth]{meff_2pt_hisq_msml5_fine_D_nongold_489conf.png}
-    \caption{Estimate for $m_\text{eff}$ using Equation~\ref{eq:meff}.\label{fig:2ptCorrelatorMeff}} 
+\makebox[\textwidth][c]{%
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{correlation_2pt_hisq_msml5_fine_D_nongold_489conf.png}
+        \captionsetup{width=.9\linewidth}
+        \subcap{Average correlator for a non-Goldstone $D$ meson on a fine lattice.\label{fig:prelimDNongoldCorrelator}}
+    \end{subfigure}%
+    \begin{subfigure}[t]{0.6\textwidth}
+        \includegraphics[width=\textwidth]{meff_2pt_hisq_msml5_fine_D_nongold_489conf.png}
+        \captionsetup{width=.8\linewidth}
+        \subcap{Estimate for $m_\text{eff}$ for non-Goldstone $D$ meson on a fine lattice.\label{fig:prelimDNongoldMeff}} 
+    \end{subfigure}
+}
 \end{figure}
 
-\clearpage
+\begin{table}
+\centering
+\begin{tabular}{l S[table-format=1.2] S[table-format=4]}
+    Meson               & {$m_\mathrm{eff}$ (lattice units)}    & {$m_\mathrm{eff}$ (\si{MeV})} \\
+    \midrule
+    $K$                 & 0.243                 & 531\\
+    $D$ Goldstone       & 0.865                 & 1891\\
+    $D$ non-Gold        & 0.866                 & 1894
+\end{tabular}
+\caption{Effective mass results for all 3 datasets on a fine lattice. These values are unstable to changing the averaging region, so they should only be taken as a rough estimate.}
+\end{table}
+
 \section{Data Analysis}
-Throughout this section, all correlator data has been Jackknife averaged to give an estimated Gaussian variable at each time slice. The analysis code is a very heavily modified version of code again provided by Chakraborty, which includes optimised prior values. Throughout this analysis we are fitting up to 6 terms in the correlator (Equation~\ref{eq:2ptCorrelator}). It is not reasonable to extract physical results from most of these terms, however we can certainly look at the ground state of each meson. Taking the most reliable value of meson mass for each of the data sets, it is possible to extrapolate to the chiral and contiuum limits to compute final estimates for the neutral $K$ and $D$ meson masses.
+Throughout this section, all correlator data has been Jackknife averaged to give an estimated Gaussian variable at each time slice. The analysis code is a very heavily modified version of code provided by Chakraborty, which includes optimised prior values. Throughout this analysis we are fitting up to 6 terms in the correlator (Equation~\ref{eq:2ptCorrelator}). It is not reasonable to extract physical results from most of these terms, however we can certainly look at the ground state of each meson. Taking the most reliable value of meson mass for each of the data sets, it is possible to extrapolate to the chiral and contiuum limits to compute final estimates for the neutral $K$ and $D$ meson masses.
 
 During the analysis, there are two main fitting parameters that are varied. $t_\mathrm{min}$ tells the fitting software how many time slices to ignore from the start and the end of each set of correlator data. This is useful as there are extra effects happening at these early time scales, and we would like to ignore these for simplicity. The other parameter, $n$, corresponds to the number of exponentials for which we are providing prior data. Studying energy levels larger than $n$ is completely unreasonable as these are only used to acheive a better fit, and the values are unphysical.
 
 For all datasets that are analysed, we limit the fitting for $K$ mesons to only have $t_\mathrm{min} = 3$. For $D$ mesons we vary this as $t_\mathrm{min} \in \{3, 4, 5, 6, 7, 9\}$. For both mesons, we also vary $n \in \{1, \ldots, 6\}$. In all of the following plots, $n=4$ was determined to be the most reliable point, so all values given on the plots are evaluated here. For plots showing fitting results, error bars are indicated in red. When a data point (error bar) appears missing it is either too large (small) to be shown on the scale. For convenience, the first 4 data points of the fitting quality plots have also been reproduced on the plots, as the majority of these points are far too large to be shown on the same scale as the rest of the points.
 
 \subsection{Fit convergence}
-%\paragraph{Fine lattice}
 The fine dataset corresponds to a lattice spacing $a \approx \SI{0.09}{fm}$ and a light quark mass $m_l \approx 0.2 m_s$. For the $K$ meson, it is clear that for any value of $n\geq4$, the fit has converged (Figure~\ref{fig:fit_fine_K}\footnote{Plots of this form have been produced for all combinations of dataset and $t_\mathrm{min}$, however where they do not add to the discussion, they have been ommitted.}). Inspection of the results for $D$ meson show that the fits tend to converge first for $n=3$ or $4$. Now we turn to the fit quality, where as we can see in Figure~\ref{fig:fit_fine_qual}, the fitting converged well for all $t_\mathrm{min}$ and for all $n \geq 4$.
 
 \begin{figure}[p]
@@ -163,7 +222,6 @@ The fine dataset corresponds to a lattice spacing $a \approx \SI{0.09}{fm}$ and 
 \end{figure}
 
 \bigskip
-%\paragraph{Coarse lattice}
 The coarse dataset corresponds to a lattice spacing $a \approx \SI{0.12}{fm}$ and a light quark mass $m_l \approx 0.2 m_s$. In this dataset, we can see that the $K$ meson values (Figure~\ref{fig:fit_coarse_K}) actually converge for $n=3$. More generally, the fit quality (Figure~\ref{fig:fit_coarse_qual}) suggests that $n = 3$ or $4$ are the earliest parameters that converge, although this is more reliable for higher $t_\mathrm{min}$.
 
 \begin{figure}[p]
@@ -179,7 +237,6 @@ The coarse dataset corresponds to a lattice spacing $a \approx \SI{0.12}{fm}$ an
 \end{figure}
 
 \bigskip
-%\paragraph{Very coarse lattice}
 The very coarse dataset corresponds to a lattice spacing $a \approx \SI{0.15}{fm}$ and a light quark mass $m_l \approx 0.036m_s$. Here we see that the $K$ meson fit (Figure~\ref{fig:fit_very-coarse_K}) apepars to converge even for $n=2$. The fit quality plots (Figure~\ref{fig:fit_very-coarse_qual}) show a different result however. Even at higher $t_\mathrm{min}$, the $\chi^2$ parameter does not reach a reasonable value until at least $n=3$.
 
 \begin{figure}[p]
@@ -214,6 +271,7 @@ Taking into account the values of parameters for which all the datasets had reli
 \end{table}
 
 \section{Chiral-Continuum Extrapolation}
+\subsection{Mass}
 Using the results we found above, it should be possible to extrapolate down to the chiral (physical light quark mass) and continuum (to avoid discretisation errors) limits. From Equation 16 in~\cite{chakraborty2017nonperturbative} we know that we should be able to model this extrapolation well. However, we have a total of 6 values that we are fitting, so it would be dubious to fit a model with any more than 6 parameters. As a result, we take the 3 lowest order terms (each produces a pair of parameters for $K$ and $D$ mesons respectively) which gives us
 \begin{equation}
     \label{eq:extrapolate}
@@ -239,6 +297,19 @@ When we perform a $\chi^2$ fit to these values\footnote{The priors used for this
     \caption{Comparison of observed and predicted mass values, including the extrapolated chiral/continuum limit values.\label{table:extrapolated_mass}}
 \end{table}
 
+\subsection{Partial Decay Width}
+From \cite{chakraborty2017nonperturbative} it is possible to write the normalised decay constant of a meson $M$ as
+
+\begin{equation}
+    f_M = (m_q + m_{\overline{q}}) a_0 \sqrt{\frac{2}{E_0^3}}, 
+\end{equation}
+where $a_0$ and $E_0$ are the ground state amplitude and energy respectively for a dataset. We can also write the partial decay width as
+
+\begin{equation}
+    \Gamma(M) = \frac{4\pi}{3}\alpha_{QED}^2e_q^2 \frac{f_M^2}{m_M},
+\end{equation}
+where $\alpha_{QED}\approx \frac{1}{137}$ at this scale, $e_q=\frac{1}{3}$ is the charge in units of $e$. We expect the physical decay width to take the same dependence on $a$ and $\frac{m_l}{m_s}$ as $m$ in Equation~\ref{eq:extrapolate}.
+
 TODO: Partial decay widths
 
 \section{Conclusion}
@@ -254,7 +325,6 @@ This project followed existing techniques in lattice NRQCD so the next steps hav
 
 Alternatively, similar analysis could be carried out on heavier mesons e.g.\ $b\overline{b}$ bottomonium mesons, such as that carried out in~\cite{parrott2020towards}. 
 TODO: Slightly expand further work?
-
 \printbibliography{}
 
 \end{document}

@@ -22,6 +22,10 @@
 \usepackage[english]{babel}
 
 \usepackage[font=small, labelfont=bf]{caption}
+\usepackage{subcaption}
+
+\newcommand\subcap[1]{\phantomcaption%
+       \caption*{\figurename~\thefigure(\thesubfigure): #1}}
 
 \usepackage{tabularx}
 \usepackage{booktabs}
