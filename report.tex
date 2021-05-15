@@ -5,6 +5,7 @@
 {../PartIIIProject/fitter/images_separate/MeV/2pt_hisq_coarse_D_Gold_K_p0_1053conf/}
 {../PartIIIProject/fitter/images_separate/MeV/2pt_hisq_msml5_fine_K_zeromom_D_Gold_nongold_495conf/}
 {../PartIIIProject/fitter/images_separate/MeV/2pt_hisq_very-coarse_D_Gold_K_1000conf/}
+{../PartIIIProject/extrapolation/images/}
 {./images/}}
 
 \title{Obtaining $K$ and $D$ meson properties from lattice QCD}
@@ -14,7 +15,7 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-Quantum Chromodynamics (QCD) describes the strong force and is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Throughout this project, a Highly Improved Stagged Quark (HISQ) action is used. From statistical ensembles of 2-point correlators we are able to extract properties of particles such as the mass and partial decay width of mesons, using the well-known \code{corrfitter} and \code{lsqfit} Python packages. These properties depend both on a lattice discretisation error, and on the (unphysical) light quark mass of the HISQ action. Extrapolation to the chiral/contiuum limit is also performed in order to obtain properties that are physical. In particular, these techniques are well suited to work with stranged and charmed mesons on a $N_f = 2 + 1 + 1$ quark sea. The mass of mesons calculated here $TODO$ is consistent with results in literature.
+    Quantum Chromodynamics (QCD) describes the strong force and is an integral component of the Standard Model (SM). At low energies QCD cannot be solved perturbatively, however it is possible to find solutions by coarse-graining and computing on a lattice. Throughout this project, a Highly Improved Stagged Quark (HISQ) action is used. From statistical ensembles of 2-point correlators we are able to attempt to extract properties of particles such as the mass and partial decay width of mesons, using the well-known \code{corrfitter} and \code{lsqfit} Python packages. These properties depend both on a lattice discretisation error, and on the (unphysical) light quark mass of the HISQ action. Extrapolation to the chiral/contiuum limit is also performed in order to obtain properties that are physical. In particular, these techniques are well suited to work with stranged and charmed mesons on a $N_f = 2 + 1 + 1$ quark sea. The mass of mesons calculated here $m_{K^0}=495.2(12), m_{D^0}=1875.6(90)$ is consistent with results in literature, although the decay width extrapolation was unsuccessful.
 \end{abstract} 
 
 \textbf{Declaration:} Except where specific reference is made to the work of others, this work is original and has not been already submitted either wholly or in part to satisfy any degree requirement at this or any other university.
@@ -117,12 +118,16 @@ By using a finite lattice we have discretisation errors (discussed in Section~\r
 Given a large sample of data with completely unknown errors, we often want to compute unbiased estimators for statistical parameters. One such way is to use Jacknife averaging\cite{efron1982jackknife}. Consider a sample of $n$ i.i.d.\ values $x_i \sim F$. Construct $n$ mean estimates $\overline{x}_i = \sum_{j\neq i} \frac{x_j}{n-1}$. The average of these sample means $\overline{x} = \sum_i\frac{\overline{x}_i}{n}$ is precisely the mean of the whole sample, and the error on this estimate is given by the variance $\text{Var}[\overline{x}] = \frac{n-1}{n}\sum_i{(\overline{x}_i - \overline{x})}^2$ of the distribution of $\overline{x}_i$. That is, we have an unbiased estimator for the mean and standard defiation of $F$ given by $\overline{x} \pm \sqrt{\text{Var}[\overline{x}]}$. In fact by replacing the means $\overline{x}_i$ above by (almost) any estimator $\overline{\theta}_i$, it is possible to construct an new estimator, using a slightly more laborious method, which has an asymptotically smaller bias\cite{mcintosh2016jackknife}.
 
 \subsection{$\chi^2$ Fitting}
-A common technique for fitting a model to data is to minimise the statistic $\chi^2 = \sum_n (y_n - f(x_n))^2 / \sigma_n$, where $y_n$ is the observed value with error $\sigma_n$ at a point $x_n$, and $f$ depends on the model parameters. Varying the parameters and then recomputing the $\chi^2$ statistic allows us to find the maximum-likelihood values. This is the method in the Python software packages \code{lsqfit} and by extension \code{corrfitter}\cite{lepage2001constrained}\footnote{Technically this works on a similar but more accurate statistic, where the errors are given as a matrix, due to the correlated nature of errors coming from the Jacknife average.}. The procedure is performed until the statistic reaches a stable minimum.
+A common technique for fitting a model to data is to minimise the statistic
+\begin{equation}
+    \chi^2 = \sum_n {(y_n - f(x_n))}^2 / \sigma_n,
+\end{equation}
+where $y_n$ is the observed value with error $\sigma_n$ at a point $x_n$, and $f$ depends on the model parameters. Varying the parameters and then recomputing the $\chi^2$ statistic allows us to find the maximum-likelihood values. This is the method in the Python software packages \code{lsqfit} and by extension \code{corrfitter}\cite{lepage2001constrained}\footnote{Technically this works on a similar but more accurate statistic, where the errors are given as a matrix, due to the correlated nature of errors coming from the Jacknife average.}. The procedure is performed until the statistic reaches a stable minimum.
 
-For a general $\chi^2$ fit, there are $N$ data points and $P$ parameters, where we take the degrees of freedom\footnote{For sufficiently well behaved function $f$, see \cite{andrae2010and}.} $K=N-P$. The statistic should follow a $\chi_K^2$ distribution. As a result, the reduced statistic $\chi^2 / K \lesssim 1$ indicates a good quality fit. It is also import to take care with small reduced $\chi^2$ results, as extremely small values might be indicative of an overfit.
+For a general $\chi^2$ fit, there are $N$ data points and $P$ parameters, where we take the degrees of freedom\footnote{For a sufficiently well behaved function $f$, see\cite{andrae2010and}.} $K=N-P$. The statistic should follow a $\chi_K^2$ distribution. As a result, the reduced statistic $\chi^2 / K \lesssim 1$ indicates a good quality fit. It is also import to take care with small reduced $\chi^2$ results, as extremely small values might be indicative of an overfit.
 
 \subsection{Bayesian Analysis}
-Using the \code{corrfitter} Python package, we perform a least-squares regression on our 2-point correlator (Equation~\ref{eq:2ptCorrelator}) data (Jacknife averages of results characterised in Table\ref{table:latticeSpacing}). For a given set of priors and a data set, the least-squares regression gives best-fit values for parameters of choice. In the context of this project, we are interested in fitting the amplitudes $a_n$, ${a_o}_n$ and the $\log$ of the energy differences, $\log(\dd E_n)$, $\log({\dd E_o}_n)$. In particular, the log of energy differences allows us to implicitly force the energy levels of the fit to strictly increase.
+Using the \code{corrfitter}\cite{lepage2020corrfitter} Python package, we perform a least-squares regression on our 2-point correlator (Equation~\ref{eq:2ptCorrelator}) data (Jacknife averages of results characterised in Table~\ref{table:latticeSpacing}). For a given set of priors and a data set, the least-squares regression gives best-fit values for parameters of choice. In the context of this project, we are interested in fitting the amplitudes $a_n$, ${a_o}_n$ and the $\log$ of the energy differences, $\log(\dd E_n)$, $\log({\dd E_o}_n)$. In particular, the log of energy differences allows us to implicitly force the energy levels of the fit to strictly increase.
 
 \subsection{Project Development}
 This project originally had the title ``Tuning NRQCD b-quarks for Bottomonium spectroscopy using lattice QCD''. For this project, I would have taken existing code to generate correlator data using lattice Non-Relativistic QCD (NRQCD) and modified it. To use NRQCD for b-quark mesons, the modification would have been to use \emph{an}isotropic lattices. In particular, using a finer lattice spacing in the time dimension would have helped to keep discretisation errors small, while keeping computations relatively fast by leaving the spatial lattice spacing at a coarser scale.
@@ -252,7 +257,7 @@ The very coarse dataset corresponds to a lattice spacing $a \approx \SI{0.15}{fm
 \end{figure}
 
 \subsection{Results}
-Taking into account the values of parameters for which all the datasets had reliable fits, the smallest (and least likely to lead to overfitting) viable choices for the parameters are $n=4$ and $t_\mathrm{min} = 6$. The collection of $E_0$ and $a_0$ values that are found with these parameters is given in Table~\ref{table:fitResults}. The energy values here seem reasonable as they correspond roughly to the masses provided in \cite{zyla2020review}: $m_K \approx \SI{498}{MeV}$ and $m_D \approx \SI{1865}{MeV}$. Of course, these values are far outside the provided statistical error bounds, but this is expected as we have both unphysical quark masses, and discretisation errors. Our next step will extrapolate our values to the chiral-continuum limit, which should give accurate results.
+Taking into account the values of parameters for which all the datasets had reliable fits, the smallest (and least likely to lead to overfitting) viable choices for the parameters are $n=4$ and $t_\mathrm{min} = 6$. The collection of $E_0$ and $a_0$ values that are found with these parameters is given in Table~\ref{table:fitResults}. The energy values here seem reasonable as they correspond roughly to the masses provided in\cite{zyla2020review}: $m_K \approx \SI{498}{MeV}$ and $m_D \approx \SI{1865}{MeV}$. Of course, these values are far outside the provided statistical error bounds, but this is expected as we have both unphysical quark masses, and discretisation errors. Our next step will extrapolate our values to the chiral-continuum limit, which should give accurate results.
 
 \begin{table}
 \centering
@@ -275,10 +280,9 @@ Taking into account the values of parameters for which all the datasets had reli
 Using the results we found above, it should be possible to extrapolate down to the chiral (physical light quark mass) and continuum (to avoid discretisation errors) limits. From Equation 16 in~\cite{chakraborty2017nonperturbative} we know that we should be able to model this extrapolation well. However, we have a total of 6 values that we are fitting, so it would be dubious to fit a model with any more than 6 parameters. As a result, we take the 3 lowest order terms (each produces a pair of parameters for $K$ and $D$ mesons respectively) which gives us
 \begin{equation}
     \label{eq:extrapolate}
-    m = m_\mathrm{phys} \Big(1 + c_\delta \frac{m_l}{m_s}\Big)\Big(1 + c_{a^2} a^2\Big).
+m = m_\mathrm{phys} \left(1 + 5c_\delta \frac{m_l}{m_s} + c_{a^2} {(a\Lambda)}^2\right).
 \end{equation}
-
-When we perform a $\chi^2$ fit to these values\footnote{The priors used for this fit are drawn from the same source.} we find a $\chi^2 / \mathrm{dof} = 0.23$ which signifies a good quality fit. This also does not appear to be overfit, which was a concern given that we are fitting 6 parameters to 6 data points. Table~\ref{table:extrapolated_mass} shows that the predicted values match very well with the observed values, as expected. Also shown are the extrapolated values which are consistent with results from the literature\cite{zyla2020review}, $m_{K^0} = \SI{497.611(13)}{MeV}$ and $m_{D^0} = \SI{1864.83(5)}{MeV}$ to within $3\sigma$ of our statistical uncertainty.
+In this, the factor of 5 is to convert to chiral scale, and the factor of $\Lambda=\SI{500}{MeV}$ sets the appropriate energy scale and non-dimensionalises $c_{a^2}$. When we perform a $\chi^2$ fit to these values\footnote{The priors used for this fit are advised by the same source.} we find a $\chi^2 / \mathrm{dof} = 0.29$ which signifies a good quality fit. This also does not appear to be overfit, which was a concern given that we are fitting 6 parameters to 6 data points. Table~\ref{table:extrapolated_mass} shows that the predicted values match very well with the observed values, as expected. Also shown are the extrapolated values which are consistent with results from the literature\cite{zyla2020review}, $m_{K^0} = \SI{497.611(13)}{MeV}$ and $m_{D^0} = \SI{1864.83(5)}{MeV}$ to within $3\sigma$ of our statistical uncertainty. These are all shown together in Figure~\ref{fig:extrapolate_E0}.
 
 \begin{table}
     \centering
@@ -291,16 +295,23 @@ When we perform a $\chi^2$ fit to these values\footnote{The priors used for this
     Very Coarse             & 495.92(08)        & 1887.3(51)        & 495.92(08)         & 1887.3(51)\\
     Coarse                  & 528.28(15)        & 1893.0(15)        & 528.31(25)         & 1892.8(15)\\
     Fine                    & 530.16(24)        & 1889.3(11)        & 530.13(24)         & 1889.4(11)\\
-    Chiral/Continuum limit  & {-}               & {-}               & 494.5(11)          & 1874.6(88)\\
+    Chiral/Continuum limit  & {-}               & {-}               & 495.2(12)          & 1874.6(90)\\
     \bottomrule
     \end{tabular}
-    \caption{Comparison of observed and predicted mass values, including the extrapolated chiral/continuum limit values.\label{table:extrapolated_mass}}
+    \caption{Comparison of observed and predicted (via Equation~\ref{eq:extrapolate}) mass values, including the extrapolated chiral/continuum limit values.\label{table:extrapolated_mass}}
 \end{table}
 
+\begin{figure}
+    \centering
+    \includegraphics[width=\imgwidth]{ccextrapolate_E0.png}
+    \caption{At $m_l / m_s = 0$, the bands show the variation of $E_0$ with $a^2$. Recall that each of the lattice values use non-zero light quark mass. Where error bars are not clearly shown, they are too small to be visible.\label{fig:extrapolate_E0}}
+\end{figure}
+
 \subsection{Partial Decay Width}
-From \cite{chakraborty2017nonperturbative} it is possible to write the normalised decay constant of a meson $M$ as
+From~\cite{chakraborty2017nonperturbative} it is possible to write the normalised decay constant of a meson $M$ as
 
 \begin{equation}
+    \label{eq:decayconst}
     f_M = (m_q + m_{\overline{q}}) a_0 \sqrt{\frac{2}{E_0^3}}, 
 \end{equation}
 where $a_0$ and $E_0$ are the ground state amplitude and energy respectively for a dataset. We can also write the partial decay width as
@@ -308,9 +319,14 @@ where $a_0$ and $E_0$ are the ground state amplitude and energy respectively for
 \begin{equation}
     \Gamma(M) = \frac{4\pi}{3}\alpha_{QED}^2e_q^2 \frac{f_M^2}{m_M},
 \end{equation}
-where $\alpha_{QED}\approx \frac{1}{137}$ at this scale, $e_q=\frac{1}{3}$ is the charge in units of $e$. We expect the physical decay width to take the same dependence on $a$ and $\frac{m_l}{m_s}$ as $m$ in Equation~\ref{eq:extrapolate}.
 
-TODO: Partial decay widths
+where $\alpha_{QED}\approx \frac{1}{137}$ at this scale, $e_q=\frac{1}{3}$ is the charge in units of $e$. We expect the physical decay width to take the same dependence on $a$ and $\frac{m_l}{m_s}$ as $m$ in Equation~\ref{eq:extrapolate}. By running the same chiral-continuum extrapolation we should obtain a decay constant for each meson, which may be converted to a partial decay width. Unfortunately, with just these data points, given in Figure~\ref{fig:extrapolate_f}, it was not possible to compute a successful fit. For completeness, the $\chi^2 / \mathrm{dof} \approx 37 \gg 1$, so the fit completely failed. With more data points it may be possible to diagnose the cause of this, however with just the 3 (varying in 2 parameters) that have been studied here, this is not viable in this case.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\imgwidth]{ccextrapolate_f.png}
+    \caption{The variation of $f_M$ with $a^2$ as calculated via Equation~\ref{eq:decayconst}. Again note that these data points do not necessarily use the same light quark masses. Where error bars are not clearly shown, they are too small to be visible.\label{fig:extrapolate_f}}
+\end{figure}
 
 \section{Conclusion}
 \subsection{Results}
@@ -318,13 +334,12 @@ This project has been primarily focussed on data analysis. The first part was im
 
 The second part constituted the majority of the effort of the project. Here, 3 datasets with varying light quark mass and lattice spacing were analysed using an existing tool. This gave far more precise values for both the mass and amplitudes of the mesons, presented in Table~\ref{table:fitResults}. Again we saw that the meson masses were consistent with expected results, except with this data we were also able to notice the variation with respect to the HISQ parameters.
 
-Finally, with a selection of meson masses, it was possible to extrapolate to the chiral/continuum limit. The aim here was to find physical meson masses and partial decay widths. Table~\ref{table:extrapolated_mass} shows the extrapolated masses, which were within $3\sigma$ of the literature values. TODO: Partial decay widths
+Finally, with a selection of meson masses, it was possible to extrapolate to the chiral/continuum limit. The aim here was to find physical meson masses and partial decay widths. Table~\ref{table:extrapolated_mass} shows the extrapolated masses, which were within $3\sigma$ of the literature values. A prediction of the partial decay widths was also planned, however no successful fit was found.
 
 \subsection{Further Work}
-This project followed existing techniques in lattice NRQCD so the next steps have already been explored well. The key advances to make would likely include adding more datasets. That is, a larger variety of light quark masses, and lattice spacings. By increasing the number of datasets analysed it would become viable to fit more parameters to Equation~\ref{eq:extrapolate}. This could give a tighter fit and thus reduce the statistical error on the final results. With careful enough analysis it is possible to also calculate masses, amplitudes, and decay widths for excited states. This expansion in scope can be seen as a subset of the analysis performed in \cite{chakraborty2021improved}.
+This project followed existing techniques in lattice NRQCD so the next steps have already been explored well. The key advances to make would likely include adding more datasets. That is, a larger variety of light quark masses, and lattice spacings. By increasing the number of datasets analysed it would become viable to fit more parameters to Equation~\ref{eq:extrapolate}. This could give a tighter fit and thus reduce the statistical error on the final results. With careful enough analysis it is possible to also calculate masses, amplitudes, and decay widths for excited states. Among these generalisations, more parameters may also help to find a valid fit for the decay constants of mesons. Alternatively, considering extra tastes may add insightful contributions to these extrapolations.
 
-Alternatively, similar analysis could be carried out on heavier mesons e.g.\ $b\overline{b}$ bottomonium mesons, such as that carried out in~\cite{parrott2020towards}. 
-TODO: Slightly expand further work?
+\clearpage
 \printbibliography{}
 
 \end{document}
