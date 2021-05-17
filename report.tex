@@ -9,7 +9,7 @@
 {./images/}}
 
 \title{Obtaining $K$ and $D$ meson properties from lattice QCD}
-\author{Oscar Simpson \\ Supervisor: Dr.\ B.\ Chakraborty}
+\author{Candidate number: 8301X \\ Supervisor: Dr.\ B.\ Chakraborty}
 \date{May 2021}
 
 \begin{document}
@@ -73,13 +73,13 @@ In each of the 3+1 dimensions there is an extra \emph{taste} of fermion at the e
     M^{-1} = \frac{-i\gamma^\mu \sin(ap_\mu)/a+m}{\sin(ap^\mu)\sin(ap_\mu)/a^2 + m^2}
 \end{equation}
 
-\subsection{HISQ Action}
+\subsection{Highly Improved Staggered Quark Action}
 It can be beneficial to reduce the number (or impact) of these extra fermion tastes. Two of these methods are outlined here. The first uses Wilson quarks\cite{2016Chakraborty}, where an extra term is introduced into the Lagrangian, such that the unphysical tastes are given non-zero mass in the continuum limit, which decouples them from the theory. Unfortunately, this explicitly breaks chiral symmetry.
 
 The alternative, and the one used to generate all the data used for this project, is the Highly Improved Staggered Quark (HISQ) action. Here, Highly Improved refers to the removal of $\order{a}$ discretisation terms. By spin-diagonalising the naive fermion action, it is possible to reduce the number of doublers to 4, which is more computationaly efficient.
 
 \subsection{Correlators}
-All the results in this project come directly from the 2-point correlator (Equation~\ref{eq:2ptCorrelatorTheory}) where $\overline{\phi}$ is the field creation operator for the meson of interest. Our state $\ket*{0}$ is populated with a randomised background colour configuration.
+All the results in this project come directly from the 2-point correlator (Equation~\ref{eq:2ptCorrelatorTheory}) where $\overline{\phi}$ is the field creation operator for the meson of interest. Our state $\ket*{0}$ is populated with a randomised background gluon configuration.
 
 \begin{equation}
     \label{eq:2ptCorrelatorTheory}
@@ -130,7 +130,7 @@ For a general $\chi^2$ fit, there are $N$ data points and $P$ parameters, where 
 Using the \code{corrfitter}\cite{lepage2020corrfitter} Python package, we perform a least-squares regression on our 2-point correlator (Equation~\ref{eq:2ptCorrelator}) data (Jacknife averages of results characterised in Table~\ref{table:latticeSpacing}). For a given set of priors and a data set, the least-squares regression gives best-fit values for parameters of choice. In the context of this project, we are interested in fitting the amplitudes $a_n$, ${a_o}_n$ and the $\log$ of the energy differences, $\log(\dd E_n)$, $\log({\dd E_o}_n)$. In particular, the log of energy differences allows us to implicitly force the energy levels of the fit to strictly increase.
 
 \subsection{Project Development}
-This project originally had the title ``Tuning NRQCD b-quarks for Bottomonium spectroscopy using lattice QCD''. For this project, I would have taken existing code to generate correlator data using lattice Non-Relativistic QCD (NRQCD) and modified it. To use NRQCD for b-quark mesons, the modification would have been to use \emph{an}isotropic lattices. In particular, using a finer lattice spacing in the time dimension would have helped to keep discretisation errors small, while keeping computations relatively fast by leaving the spatial lattice spacing at a coarser scale.
+This project originally had the title ``Tuning NRQCD b-quarks for Bottomonium spectroscopy using lattice QCD''. For that project, I would have taken existing code to generate correlator data using lattice Non-Relativistic QCD (NRQCD) and modified it. To use NRQCD for b-quark mesons, the modification would have been to use \emph{an}isotropic lattices. In particular, using a finer lattice spacing in the time dimension would have helped to keep discretisation errors small, while keeping computations relatively fast by leaving the spatial lattice spacing at a coarser scale.
 
 Due to the time constraints of a project of this nature, it was decided that it was not possible to tackle such an intricate problem. There was instead a pivot towards the final title of this project. This is much more focussed on the data-analysis side, exploring modern techniques for obtaining masses and partial decay widths of lighter\footnote{Not containing $b$-quarks.} mesons.
 
@@ -143,7 +143,7 @@ Using Jacknife averaging on the fine dataset (recall that these have $T=96$ time
     \begin{subfigure}[t]{0.6\textwidth}
         \includegraphics[width=\textwidth]{correlation_2pt_hisq_msml5_fine_D_gold_489conf.png}
         \captionsetup{width=.9\linewidth}
-        \subcap{Average correlator for Goldstone $D$ meson on a fine lattice. In orange is the (statistical) relative error.\label{fig:prelimDGoldCorrelator}}
+        \subcap{In blue, the average correlator for Goldstone $D$ meson on a fine lattice. In orange, the (statistical) relative error.\label{fig:prelimDGoldCorrelator}}
     \end{subfigure}%
     \begin{subfigure}[t]{0.6\textwidth}
         \includegraphics[width=\textwidth]{meff_2pt_hisq_msml5_fine_D_gold_489conf.png}
@@ -158,12 +158,12 @@ Using Jacknife averaging on the fine dataset (recall that these have $T=96$ time
     \begin{subfigure}[t]{0.6\textwidth}
         \includegraphics[width=\textwidth]{correlation_2pt_hisq_msml5_fine_K_zeromom_495conf.png}
         \captionsetup{width=.9\linewidth}
-        \subcap{Average correlator for $K$ meson on a fine lattice.\label{fig:prelimKCorrelator}}
+        \subcap{In blue, the average correlator for $K$ meson on a fine lattice. In orange, the (statistical) relative error.\label{fig:prelimKCorrelator}}
     \end{subfigure}%
     \begin{subfigure}[t]{0.6\textwidth}
         \includegraphics[width=\textwidth]{meff_2pt_hisq_msml5_fine_K_zeromom_495conf.png}
         \captionsetup{width=.8\linewidth}
-        \subcap{Estimate for $m_\text{eff}$ for $K$ meson on a fine lattice.\label{fig:prelimKMeff}} 
+        \subcap{Estimate for $m_\text{eff}$ for $K$ meson on a fine lattice. Only points between the green lines are included in the final average.\label{fig:prelimKMeff}} 
     \end{subfigure}
 }
 \end{figure}
@@ -182,12 +182,12 @@ When actually computing this value, we must make sure that we do not go past hal
     \begin{subfigure}[t]{0.6\textwidth}
         \includegraphics[width=\textwidth]{correlation_2pt_hisq_msml5_fine_D_nongold_489conf.png}
         \captionsetup{width=.9\linewidth}
-        \subcap{Average correlator for a non-Goldstone $D$ meson on a fine lattice.\label{fig:prelimDNongoldCorrelator}}
+        \subcap{In blue, the average correlator for a non-Goldstone $D$ meson on a fine lattice. In orange, the (statistical) relative error.\label{fig:prelimDNongoldCorrelator}}
     \end{subfigure}%
     \begin{subfigure}[t]{0.6\textwidth}
         \includegraphics[width=\textwidth]{meff_2pt_hisq_msml5_fine_D_nongold_489conf.png}
         \captionsetup{width=.8\linewidth}
-        \subcap{Estimate for $m_\text{eff}$ for non-Goldstone $D$ meson on a fine lattice.\label{fig:prelimDNongoldMeff}} 
+        \subcap{Estimate for $m_\text{eff}$ for non-Goldstone $D$ meson on a fine lattice. Only points between the green lines are included in the final average.\label{fig:prelimDNongoldMeff}} 
     \end{subfigure}
 }
 \end{figure}
@@ -304,7 +304,7 @@ In this, the factor of 5 is to convert to chiral scale, and the factor of $\Lamb
 \begin{figure}
     \centering
     \includegraphics[width=\imgwidth]{ccextrapolate_E0.png}
-    \caption{At $m_l / m_s = 0$, the bands show the variation of $E_0$ with $a^2$. Recall that each of the lattice values use non-zero light quark mass. Where error bars are not clearly shown, they are too small to be visible.\label{fig:extrapolate_E0}}
+    \caption{At $m_l / m_s = 0$, the bands show the variation of $E_0$ with $a^2$. Recall that each of the lattice values use non-zero light quark mass, so we do not expect fine and coarse lattice values to be within these bands. The very coarse lattice value has the smaller quark mass so is expected to be closer to the chiral limit, which is exactly what we see here. Where error bars are not clearly shown, they are too small to be visible.\label{fig:extrapolate_E0}}
 \end{figure}
 
 \subsection{Partial Decay Width}
@@ -320,7 +320,19 @@ where $a_0$ and $E_0$ are the ground state amplitude and energy respectively for
     \Gamma(M) = \frac{4\pi}{3}\alpha_{QED}^2e_q^2 \frac{f_M^2}{m_M},
 \end{equation}
 
-where $\alpha_{QED}\approx \frac{1}{137}$ at this scale, $e_q=\frac{1}{3}$ is the charge in units of $e$. We expect the physical decay width to take the same dependence on $a$ and $\frac{m_l}{m_s}$ as $m$ in Equation~\ref{eq:extrapolate}. By running the same chiral-continuum extrapolation we should obtain a decay constant for each meson, which may be converted to a partial decay width. Unfortunately, with just these data points, given in Figure~\ref{fig:extrapolate_f}, it was not possible to compute a successful fit. For completeness, the $\chi^2 / \mathrm{dof} \approx 37 \gg 1$, so the fit completely failed. With more data points it may be possible to diagnose the cause of this, however with just the 3 (varying in 2 parameters) that have been studied here, this is not viable in this case.
+where $\alpha_{QED}\approx \frac{1}{137}$ at this scale, $e_q=\frac{1}{3}$ is the charge in units of $e$. We expect the physical decay width to take the same dependence on $a$ and $\frac{m_l}{m_s}$ as $m$ in Equation~\ref{eq:extrapolate}. By running the same chiral-continuum extrapolation we should obtain a decay constant for each meson, which may be converted to a partial decay width. Unfortunately, with just these data points, given in Table~\ref{table:decayconst} and shown in Figure~\ref{fig:extrapolate_f}, it was not possible to compute a successful fit. For completeness, the $\chi^2 / \mathrm{dof} \approx 37 \gg 1$, so the fit completely failed. With more data points it may be possible to diagnose the cause of this, however with just the 3 (varying in 2 parameters) that have been studied here, this is not viable in this case.
+
+\begin{table}[bh]
+    \centering
+    \begin{tabular}{l S[table-format=1.7(2)] S[table-format=1.6(2)]}
+        Label       & {$f_K$}       & {$f_D$}   \\
+        \midrule
+        Very Coarse & 0.0034671(16) & 0.00502(14)\\
+        Coarse      & 0.007910(7)   & 0.004160(27)\\
+        Fine        & 0.0016779(19) & 0.002756(26)
+    \end{tabular}
+    \caption{Normalised decay constants for each lattice and meson type.\label{table:decayconst}}
+\end{table}
 
 \begin{figure}
     \centering
@@ -339,7 +351,6 @@ Finally, with a selection of meson masses, it was possible to extrapolate to the
 \subsection{Further Work}
 This project followed existing techniques in lattice NRQCD so the next steps have already been explored well. The key advances to make would likely include adding more datasets. That is, a larger variety of light quark masses, and lattice spacings. By increasing the number of datasets analysed it would become viable to fit more parameters to Equation~\ref{eq:extrapolate}. This could give a tighter fit and thus reduce the statistical error on the final results. With careful enough analysis it is possible to also calculate masses, amplitudes, and decay widths for excited states. Among these generalisations, more parameters may also help to find a valid fit for the decay constants of mesons. Alternatively, considering extra tastes may add insightful contributions to these extrapolations.
 
-\clearpage
 \printbibliography{}
 
 \end{document}
